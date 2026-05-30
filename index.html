@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кофе наедине?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 16px;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      color: #2e1f1a;
+      background: linear-gradient(150deg, #fff8ef, #ffe6d5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 760px;
+      background: #fffefb;
+      border: 2px solid #e9bea4;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(68, 35, 24, 0.16);
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #f0c0a0;
+      color: #9c4a26;
+      background: #fff2e9;
+      font-size: 13px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin: 0 0 20px;
+      color: #5d473d;
+      line-height: 1.4;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    #q1 {
+      display: block;
+    }
+
+    .screen:target {
+      display: block;
+    }
+
+    body:has(.screen:target) #q1 {
+      display: none;
+    }
+
+    .question {
+      margin: 18px 0 10px;
+      font-size: 25px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .options {
+      min-height: 210px;
+      padding: 16px;
+      border: 1px dashed #efcdb8;
+      border-radius: 16px;
+      background: #fffaf5;
+    }
+
+    .option {
+      display: inline-block;
+      max-width: 100%;
+      margin: 0 8px 10px 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1.2;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 180ms ease, opacity 180ms ease;
+    }
+
+    .option.good {
+      color: #155724;
+      background: #dff7e5;
+      border: 1px solid #8de1a1;
+    }
+
+    .option.bad {
+      color: #575757;
+      background: #f2f2f2;
+      border: 1px solid #d2d2d2;
+    }
+
+    .option.bad:hover {
+      transform: translate(54px, -8px);
+      opacity: 0.72;
+    }
+
+    .progress {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #7d655b;
+    }
+
+    .final {
+      padding: 18px;
+      border: 1px solid #b5efc0;
+      border-radius: 16px;
+      background: #f2fff4;
+      text-align: center;
+    }
+
+    .final h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .final p {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 12px;
+        align-items: flex-start;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .question {
+        font-size: 22px;
+      }
+
+      .options {
+        min-height: 0;
+      }
+
+      .option {
+        display: inline-block;
+        width: auto;
+        margin-right: 0;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <span class="badge">Тайная миссия: кофе</span>
+    <h1>Приглашение выпить кофе наедине</h1>
+    <p class="sub">Неправильные ответы можно увидеть, но поймать их почти невозможно.</p>
+
+    <section class="screen" id="q1">
+      <div class="question">Когда пойдём кофе пить?</div>
+      <div class="options">
+        <a class="option good" href="#q2">Сегодня вечером</a>
+        <button class="option bad" type="button">Завтра после 18:00</button>
+        <button class="option bad" type="button">Никогда</button>
+        <button class="option bad" type="button">Через 15 лет</button>
+      </div>
+      <div class="progress">Вопрос 1 из 3</div>
+    </section>
+
+    <section class="screen" id="q2">
+      <div class="question">Где встретимся?</div>
+      <div class="options">
+        <a class="option good" href="#q3">Там где сидели в прошлый раз</a>
+        <a class="option good" href="#q3">Там где сидели но под крышей</a>
+        <button class="option bad" type="button">В нячанге</button>
+        <button class="option bad" type="button">В нячанге в троем</button>
+        <button class="option bad" type="button">В очереди в ЖЭК</button>
+      </div>
+      <div class="progress">Вопрос 2 из 3</div>
+    </section>
+
+    <section class="screen" id="q3">
+      <div class="question">Формат встречи?</div>
+      <div class="options">
+        <a class="option good" href="#final">Кофе...</a>
+        <button class="option bad" type="button">Кофе + прогулка</button>
+        <button class="option bad" type="button">Кофе плюс выяснение отношений</button>
+        <button class="option bad" type="button">Кофе плюс тепло и заботы</button>
+        <button class="option bad" type="button">Кофе с подругой</button>
+      </div>
+      <div class="progress">Вопрос 3 из 3</div>
+    </section>
+
+    <section class="screen" id="final">
+      <div class="final">
+        <h2>Ура! Тогда договорились.</h2>
+        <p>Пишу тебе и выбираем место с самым вкусным капучино.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll('.option.bad');
+      var screens = document.querySelectorAll('.screen');
+
+      function showScreenFromHash() {
+        var hash = window.location.hash || '#q1';
+        for (var index = 0; index < screens.length; index += 1) {
+          screens[index].style.display = screens[index].id === hash.slice(1) ? 'block' : 'none';
+        }
+      }
+
+      function randomBetween(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function evade(button) {
+        var rect = button.getBoundingClientRect();
+        var maxX = Math.max(20, window.innerWidth - rect.width - 20);
+        var maxY = Math.max(20, window.innerHeight - rect.height - 20);
+        var targetX = randomBetween(10, maxX);
+        var targetY = randomBetween(10, maxY);
+        var shiftX = targetX - rect.left;
+        var shiftY = targetY - rect.top;
+        button.style.transform = 'translate(' + shiftX + 'px, ' + shiftY + 'px)';
+        button.style.opacity = '0.7';
+
+        window.setTimeout(function () {
+          button.style.transform = '';
+          button.style.opacity = '1';
+        }, 700);
+      }
+
+      for (var i = 0; i < buttons.length; i += 1) {
+        buttons[i].addEventListener('mouseenter', function () {
+          evade(this);
+        });
+
+        buttons[i].addEventListener('touchstart', function (event) {
+          event.preventDefault();
+          evade(this);
+        }, false);
+
+        buttons[i].addEventListener('click', function (event) {
+          event.preventDefault();
+          evade(this);
+        }, false);
+      }
+
+      window.addEventListener('hashchange', showScreenFromHash, false);
+      showScreenFromHash();
+    }());
+  </script>
+</body>
+</html>
