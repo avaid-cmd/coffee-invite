@@ -243,21 +243,43 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
       marker.bindPopup(popup);
     } else {
       marker.on('click',function () {
-        var available = coast.map(function (_,i) {return i;}).filter(function (i) {
-          var pixel = map.latLngToContainerPoint(coast[i]);
-          return i !== marker.coastIndex &&
-            !markers.some(function (other) {return other !== marker && other.coastIndex === i;}) &&
-            pixel.x > 40 && pixel.x < map.getSize().x-40 &&
-            pixel.y > 64 && pixel.y < map.getSize().y-28;
-        });
+        var available = [];
+        var previous = map.latLngToContainerPoint(marker.getLatLng());
+        // Search along the actual coastal line, with space around every other pin.
+        for (var segment = 0; segment < coast.length-1; segment += 1) {
+          for (var fraction = 0; fraction < 1; fraction += 0.05) {
+            var position = L.latLng(
+              coast[segment][0] + (coast[segment+1][0]-coast[segment][0])*fraction,
+              coast[segment][1] + (coast[segment+1][1]-coast[segment][1])*fraction
+            );
+            var pixel = map.latLngToContainerPoint(position);
+            if (pixel.x < 30 || pixel.x > map.getSize().x-30 ||
+                pixel.y < 54 || pixel.y > map.getSize().y-16 ||
+                pixel.distanceTo(previous) < 12) continue;
+            if (markers.every(function (other) {
+              return other === marker || pixel.distanceTo(map.latLngToContainerPoint(other.getLatLng())) >= 54;
+            })) available.push(position);
+          }
+        }
         if (!available.length) {
           map.setView([12.2405,109.1968],14,{animate:false});
-          available = coast.map(function (_,i) {return i;}).filter(function (i) {
-            return i !== marker.coastIndex && !markers.some(function (other) {return other !== marker && other.coastIndex === i;});
+          markers.forEach(function (other,i) {
+            if (other !== marker) other.setLatLng(coast[[0,2,4,6,8][i]]);
           });
+          // The adjacent half-segment is clear of the five original pin positions.
+          var original = [0,2,4,6,8][index];
+          var adjacent = original === coast.length-1 ? original-1 : original+1;
+          var toward = L.latLng(
+            coast[original][0]*0.55 + coast[adjacent][0]*0.45,
+            coast[original][1]*0.55 + coast[adjacent][1]*0.45
+          );
+          available.push(toward);
+          if (map.latLngToContainerPoint(toward).distanceTo(previous) < 8) {
+            available.push(L.latLng(coast[original]));
+            available.shift();
+          }
         }
-        marker.coastIndex = available[randomBetween(0,available.length-1)];
-        marker.setLatLng(coast[marker.coastIndex]);
+        marker.setLatLng(available[randomBetween(0,available.length-1)]);
         announcer.textContent = 'Эта отметка хранит чужой секрет. Попробуй другую.';
       });
     }
