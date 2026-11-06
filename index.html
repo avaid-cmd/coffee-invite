@@ -30,8 +30,8 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
 .pin-icon{background:none;border:0}
 .pin-button{width:48px;height:48px;border-radius:50% 50% 50% 8px;border:2px solid #fff2d4;background:#a74639;box-shadow:0 4px 14px #132b3460;color:#fff7e9;display:grid;place-items:center}
 .pin-button span{font-size:18px;font-weight:700}
-.pin-button.correct{background:#8a642d}
-.pin-button.correct span{font-size:10px}
+.pin-button.correct{background:#8a642d;padding:0}
+.pin-button.correct span{font-size:8px;letter-spacing:-.2px}
 .leaflet-popup-content{margin:16px;min-width:150px}
 .leaflet-popup-content p{margin:8px 0 14px}
 .leaflet-container{font-family:inherit}
@@ -206,7 +206,7 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
     document.getElementById('map-error').hidden = false;
     return;
   }
-  map = L.map('map',{scrollWheelZoom:false,minZoom:13,maxZoom:17}).setView([12.2405,109.1968],14);
+  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView([12.2405,109.1968],14);
   var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
