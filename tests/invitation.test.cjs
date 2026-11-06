@@ -57,10 +57,11 @@ for (const [name, engine, contextOptions] of [
       assert.deepEqual(await page.evaluate(() => window.meetingPoint), [12.228754, 109.200047], 'Correct pin is Z Beach Nha Trang');
       const pinStyles = await page.locator('.pin-button').evaluateAll(pins => pins.map(pin => {
         const style = getComputedStyle(pin);
-        const label = getComputedStyle(pin.querySelector('span'));
-        return JSON.stringify([style.backgroundColor,style.width,style.height,style.borderRadius,label.fontSize,pin.textContent]);
+        return JSON.stringify([style.backgroundColor,style.width,style.height,style.borderRadius,pin.textContent]);
       }));
       assert.equal(new Set(pinStyles).size, 1, 'All five map pins look identical');
+      assert.ok((await page.locator('.pin-button').allTextContents()).every(text => text === ''), 'Pins have no crosses or text');
+      assert.equal(await page.locator('.pin-button').first().evaluate(pin => getComputedStyle(pin).backgroundColor), 'rgb(129, 174, 148)', 'All map pins are green');
       assert.equal(await page.locator('.footer').count(), 0, 'No test-version footer');
       assert.ok(await page.locator('.leaflet-tile-loaded').count() > 0, 'Real map tiles loaded');
       await page.evaluate(() => { location.hash = 'final'; });
@@ -107,7 +108,18 @@ for (const [name, engine, contextOptions] of [
         assert.ok(await page.locator('#' + step).isVisible());
         assert.equal(await page.locator('#' + step + ' .choice').count(), 5);
         assert.equal(await page.locator('#' + step + ' .good').count(), 1);
-        const labels = await page.locator('#' + step + ' .choice').allTextContents();
+        const choices = page.locator('#' + step + ' .choice');
+        const colors = await choices.evaluateAll(buttons => buttons.map(button => {
+          const style = getComputedStyle(button);
+          return JSON.stringify([style.backgroundColor,style.color,style.borderColor,style.fontWeight]);
+        }));
+        assert.equal(new Set(colors).size, 1, 'Correct answer has no visual color or weight hint');
+        const first = await choices.nth(0).boundingBox();
+        const second = await choices.nth(1).boundingBox();
+        const third = await choices.nth(2).boundingBox();
+        assert.ok(second.x > first.x && Math.abs(first.y-second.y) < 1, 'Answers are side by side in two columns');
+        assert.ok(third.y > first.y, 'Third answer starts the next row');
+        const labels = await choices.allTextContents();
         assert.deepEqual(labels, step === 'q2'
           ? ['В море','На подушках','На баре','У входа','Где-то в Нячанге']
           : ['18:00','00:00','19:30','14:00','17:00']);

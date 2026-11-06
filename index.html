@@ -32,21 +32,19 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 .map-hint{padding:12px 0;margin:0;color:#78857d;font-size:12px;line-height:1.5}
 .map-error{background:#fff0cc;color:#795923;padding:12px;margin:0;font-size:13px}
 .pin-icon{background:none;border:0}
-.pin-button{width:34px;height:38px;padding:0;border-radius:50% 50% 50% 5px;border:2px solid white;background:#e39b79;box-shadow:0 3px 9px #59674d30;color:white;display:grid;place-items:center}
-.pin-button span{font-size:15px;font-weight:650}
+.pin-button{width:34px;height:38px;padding:0;border-radius:50% 50% 50% 5px;border:2px solid white;background:#81ae94;box-shadow:0 3px 9px #59674d30;color:white;display:grid;place-items:center}
 .leaflet-popup-content{margin:14px;min-width:150px}
 .leaflet-popup-content p{margin:8px 0 12px}
 .leaflet-container{font-family:inherit}
 .primary{display:inline-block;border:1px solid #9cc1ab;border-radius:11px;padding:10px 15px;background:#deeee3;color:#304b3c;font-weight:600;font-size:14px;text-decoration:none;min-height:40px}
 .primary:focus-visible,.choice:focus-visible,.pin-button:focus-visible{outline:3px solid #739d85;outline-offset:3px}
-.choices{position:relative;min-height:310px;padding:12px 0;overflow:visible}
-.choice:nth-child(1){top:12px}
-.choice:nth-child(2){top:68px}
-.choice:nth-child(3){top:124px}
-.choice:nth-child(4){top:180px}
-.choice:nth-child(5){top:236px}
-.choice{position:absolute;left:0;width:max-content;max-width:min(220px,calc(100vw - 32px));min-height:36px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:left;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
-.choice.good{background:#deeee3;border-color:#9bc1a8;color:#365a43;font-weight:600}
+.choices{position:relative;max-width:400px;min-height:190px;padding:12px 0;overflow:visible}
+.choice:nth-child(1){top:12px;left:0}
+.choice:nth-child(2){top:12px;left:calc(50% + 6px)}
+.choice:nth-child(3){top:68px;left:0}
+.choice:nth-child(4){top:68px;left:calc(50% + 6px)}
+.choice:nth-child(5){top:124px;left:0}
+.choice{position:absolute;width:calc((100% - 12px)/2);max-width:min(220px,calc(100vw - 32px));min-height:36px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:center;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
 .choice.bad[style]{z-index:1000}
 .photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
 .photo-placeholder{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px dashed #bed0bf;border-radius:12px;color:#7f8d7d;background:linear-gradient(145deg,#eff8ef,#fff9e9)}
@@ -200,6 +198,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     if (!candidates.length) return;
     var target = candidates[randomBetween(0,candidates.length-1)];
     button.style.position = 'fixed';
+    button.style.width = before.width + 'px';
     button.style.left = target.x + 'px';
     button.style.top = target.y + 'px';
     button.recentTargets = history.concat([{x:before.left,y:before.top},target]).slice(-8);
@@ -281,7 +280,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     var correct = index === 2;
     var icon = L.divIcon({
       className:'pin-icon',
-      html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + ('Отметка ' + (index+1)) + '"><span>' + '✕' + '</span></button>',
+      html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + ('Отметка ' + (index+1)) + '"></button>',
       iconSize:[34,38],iconAnchor:[17,38],popupAnchor:[0,-34]
     });
     var marker = L.marker(correct ? meetingPoint : coast[pointIndex],{icon:icon,keyboard:false}).addTo(map);
