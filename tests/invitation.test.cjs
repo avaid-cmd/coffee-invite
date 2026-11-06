@@ -8,6 +8,7 @@ const url = process.env.INVITATION_URL || 'https://avaid-cmd.github.io/coffee-in
 for (const [name, engine, contextOptions] of [
   ['iPhone / WebKit', webkit, { ...devices['iPhone 13'] }],
   ['small iPhone / WebKit', webkit, { ...devices['iPhone SE'] }],
+  ['Android / Chrome', chromium, { ...devices['Pixel 7'] }],
   ['desktop / Chrome', chromium, { viewport: { width: 1280, height: 900 } }]
 ]) {
   test(name + ': five choices, evasion, correct route, responsive bounds', { timeout: 120000 }, async () => {
