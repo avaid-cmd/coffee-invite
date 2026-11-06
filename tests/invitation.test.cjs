@@ -22,6 +22,7 @@ for (const [name, engine, contextOptions] of [
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(url + '?test=' + Date.now(), { waitUntil: 'networkidle' });
       assert.equal(await page.title(), 'Маленькая авантюра');
+      assert.equal(await page.locator('html').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 250, 240)', 'Light theme');
       await page.locator('.pin-button').last().waitFor();
       assert.equal(await page.locator('.pin-button').count(), 5);
       assert.equal(await page.locator('.pin-button.correct').count(), 1);
@@ -37,9 +38,12 @@ for (const [name, engine, contextOptions] of [
       const falsePin = page.locator('.pin-button:not(.correct)').first();
       for (let i = 0; i < 15; i++) {
         const before = await falsePin.boundingBox();
+        const mapBefore = await page.locator('#map').boundingBox();
         if (contextOptions.hasTouch) await falsePin.tap(); else await falsePin.click();
         const after = await falsePin.boundingBox();
-        assert.ok(before.x !== after.x || before.y !== after.y, 'False pin always moves');
+        assert.ok(Math.hypot(before.x-after.x,before.y-after.y) >= Math.min(mapBefore.width,mapBefore.height)*0.40, 'False pin makes a large jump');
+        const mapAfter = await page.locator('#map').boundingBox();
+        assert.ok(after.x >= mapAfter.x && after.x+after.width <= mapAfter.x+mapAfter.width && after.y >= mapAfter.y && after.y+after.height <= mapAfter.y+mapAfter.height, 'Jump stays inside map');
         assert.ok(await page.locator('#q1').isVisible());
         assert.equal(await page.locator('.leaflet-popup').count(), 0);
       }
@@ -54,18 +58,19 @@ for (const [name, engine, contextOptions] of [
             const before = await button.boundingBox();
             if (contextOptions.hasTouch) await button.tap(); else await button.click();
             const after = await button.boundingBox();
-            assert.ok(before.x !== after.x || before.y !== after.y, 'False answer always moves');
-            const arena = await page.locator('#' + step + ' .choices').boundingBox();
-            assert.ok(after.x >= arena.x && after.x + after.width <= arena.x + arena.width, 'Answer inside card');
+            const viewport = page.viewportSize();
+            assert.ok(Math.hypot(before.x-after.x,before.y-after.y) >= Math.min(viewport.width,viewport.height)*0.40, 'Answer makes a large jump');
+            assert.ok(after.width <= 220 && after.height < 52, 'Compact answer button');
+            assert.ok(after.x >= 0 && after.x+after.width <= viewport.width && after.y >= 0 && after.y+after.height <= viewport.height, 'Answer stays on screen');
             const good = await page.locator('#' + step + ' .good').boundingBox();
-            assert.ok(after.y + after.height <= good.y || after.y >= good.y + good.height, 'Correct answer stays accessible');
+            assert.ok(after.x+after.width <= good.x || after.x >= good.x+good.width || after.y+after.height <= good.y || after.y >= good.y+good.height, 'Correct answer stays accessible');
             assert.ok(await page.locator('#' + step).isVisible());
           }
         }
         await page.locator('#' + step + ' .good').click();
         if (step === 'q2') {
           assert.ok(await page.locator('#photo').isVisible(), 'Correct answer reveals photo step');
-          assert.ok(await page.getByText('Здесь будет фото места', { exact: true }).isVisible());
+          assert.ok(await page.getByText('Здесь будет фото', { exact: true }).isVisible());
           await page.locator('#photo .primary').click();
         }
       }

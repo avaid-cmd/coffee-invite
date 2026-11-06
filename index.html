@@ -3,67 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#102c34">
+<meta name="theme-color" content="#fffaf0">
 <title>Маленькая авантюра</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{background:#102c34;color:#f5efe3}
-body{margin:0;padding:24px 16px calc(24px + env(safe-area-inset-bottom));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at top right,#24474b,transparent 65%),#102c34}
+html{background:#fffaf0;color:#30423f}
+body{margin:0;padding:20px 16px calc(24px + env(safe-area-inset-bottom));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at top right,#e7f5ef,transparent 60%),#fffaf0}
 button,a{-webkit-tap-highlight-color:transparent}
 button{font:inherit;cursor:pointer;touch-action:manipulation}
 .card{max-width:760px;margin:auto}
-.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 28px;color:#d5bd8e;font-size:12px;letter-spacing:2px;text-transform:uppercase}
-.compass{font-size:25px}
-h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-height:1.08;margin:0 0 14px}
-.sub{color:#b9caca;font-size:16px;line-height:1.6;margin:0 0 22px;max-width:520px}
-.steps{display:flex;gap:6px;margin:0 0 26px}
-.steps span{height:3px;background:#355157;flex:1;border-radius:3px}
-.steps .active{background:#dfbd7d}
-.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#dfbd7d;margin:0 0 12px}
-.map-shell{position:relative;border:1px solid #56716f;border-radius:22px;overflow:hidden;background:#bfd5d6}
-#map{height:clamp(420px,56svh,540px);width:100%;color:#18363c;z-index:0}
-.map-hint{padding:14px 16px;margin:0;color:#b9caca;font-size:13px;line-height:1.5}
-.map-error{background:#f4dfbc;color:#49351c;padding:12px;margin:0;font-size:13px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 20px;color:#72877c;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.compass{font-size:23px;color:#a87736}
+h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-height:1.15;margin:0 0 12px}
+.sub{color:#78857d;font-size:14px;line-height:1.5;margin:0 0 20px}
+.steps{display:flex;gap:6px;margin:0 0 24px}
+.steps span{height:3px;background:#e6e8db;flex:1;border-radius:3px}
+.steps .active{background:#8ebda6}
+.eyebrow{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#a07e4c;margin:0 0 10px}
+.map-shell{position:relative;border:1px solid #dfdfd0;border-radius:18px;overflow:hidden;background:#deeeec}
+#map{height:clamp(420px,60svh,560px);width:100%;color:#30423f;z-index:0}
+.map-hint{padding:12px 0;margin:0;color:#78857d;font-size:12px;line-height:1.5}
+.map-error{background:#fff0cc;color:#795923;padding:12px;margin:0;font-size:13px}
 .pin-icon{background:none;border:0}
-.pin-button{width:48px;height:48px;border-radius:50% 50% 50% 8px;border:2px solid #fff2d4;background:#a74639;box-shadow:0 4px 14px #132b3460;color:#fff7e9;display:grid;place-items:center}
-.pin-button span{font-size:18px;font-weight:700}
-.pin-button.correct{background:#8a642d;padding:0}
-.pin-button.correct span{font-size:8px;letter-spacing:-.2px}
-.leaflet-popup-content{margin:16px;min-width:150px}
-.leaflet-popup-content p{margin:8px 0 14px}
+.pin-button{width:34px;height:38px;padding:0;border-radius:50% 50% 50% 5px;border:2px solid white;background:#e39b79;box-shadow:0 3px 9px #59674d30;color:white;display:grid;place-items:center}
+.pin-button span{font-size:15px;font-weight:650}
+.pin-button.correct{background:#81ae94;width:66px;border-radius:12px}
+.pin-button.correct span{font-size:9px}
+.leaflet-popup-content{margin:14px;min-width:150px}
+.leaflet-popup-content p{margin:8px 0 12px}
 .leaflet-container{font-family:inherit}
-.primary{display:inline-block;border:0;border-radius:13px;padding:15px 21px;background:#e7c88e;color:#203238;font-weight:650;text-decoration:none;min-height:48px}
-.primary:focus-visible,.choice:focus-visible,.pin-button:focus-visible{outline:3px solid #fff;outline-offset:4px}
-.choices{position:relative;border:1px solid #416066;border-radius:22px;height:420px;background:#18373e;overflow:hidden}
-.choice{position:absolute;left:14px;right:14px;min-height:52px;padding:12px 14px;border:1px solid #668080;border-radius:14px;background:#27474e;color:#f5efe3;text-align:left;line-height:1.3;font-size:15px}
-.choice:nth-child(1){top:18px}
-.choice:nth-child(2){top:94px}
-.choice:nth-child(3){top:170px}
-.choice:nth-child(4){top:246px}
-.choice:nth-child(5){top:322px}
-.choice.good{background:#e7c88e;border-color:#e7c88e;color:#203238;font-weight:650}
-#q3 .choices{height:470px}
-#q3 .choice:nth-child(1){top:18px}
-#q3 .choice:nth-child(2){top:104px}
-#q3 .choice:nth-child(3){top:190px}
-#q3 .choice:nth-child(4){top:276px}
-#q3 .choice:nth-child(5){top:362px}
-.photo-frame{padding:12px;border:1px solid #4d686c;border-radius:22px;background:#18373e;margin-bottom:20px}
-.photo-placeholder{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:26px;text-align:center;border:1px dashed #6d8280;border-radius:14px;color:#bacbc8;background:linear-gradient(145deg,#24484e,#18373e)}
-.photo-placeholder span{font-size:42px;color:#dfbd7d}
-.photo-placeholder p{font-size:14px;line-height:1.6;margin:0;max-width:260px}
-.meeting-photo{display:block;width:100%;height:auto;border-radius:14px}
-.footer{color:#92aaa9;font-size:12px;line-height:1.6;margin-top:24px}
-.final{padding:42px 22px;text-align:center;border:1px solid #516c6d;border-radius:22px;background:#1a3b42}
-.final .symbol{font-size:42px;color:#dfbd7d;margin-bottom:20px}
-.final h1{font-size:34px}
-.final p{color:#b9caca;line-height:1.6}
-#announcer{min-height:24px;color:#dfbd7d;font-size:13px;margin:14px 0}
-@media(min-width:600px){body{padding-top:40px}.card{padding:0 20px}.choice{left:24px;right:24px}}
-@media(prefers-reduced-motion:no-preference){.screen{animation:appear .3s ease}@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
+.primary{display:inline-block;border:1px solid #9cc1ab;border-radius:11px;padding:10px 15px;background:#deeee3;color:#304b3c;font-weight:600;font-size:14px;text-decoration:none;min-height:40px}
+.primary:focus-visible,.choice:focus-visible,.pin-button:focus-visible{outline:3px solid #739d85;outline-offset:3px}
+.choices{position:relative;min-height:310px;padding:12px 0;overflow:visible}
+.choice:nth-child(1){top:12px}
+.choice:nth-child(2){top:68px}
+.choice:nth-child(3){top:124px}
+.choice:nth-child(4){top:180px}
+.choice:nth-child(5){top:236px}
+.choice{position:absolute;left:0;width:max-content;max-width:min(220px,calc(100vw - 32px));min-height:36px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:left;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
+.choice.good{background:#deeee3;border-color:#9bc1a8;color:#365a43;font-weight:600}
+.choice.bad[style]{z-index:1000}
+.photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
+.photo-placeholder{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px dashed #bed0bf;border-radius:12px;color:#7f8d7d;background:linear-gradient(145deg,#eff8ef,#fff9e9)}
+.photo-placeholder span{font-size:36px;color:#a48b5b}
+.photo-placeholder p{font-size:13px;line-height:1.5;margin:0;max-width:240px}
+.meeting-photo{display:block;width:100%;height:auto;border-radius:12px}
+.footer{color:#99a18e;font-size:11px;line-height:1.5;margin-top:20px}
+.final{padding:38px 20px;text-align:center;border:1px solid #d9e4d6;border-radius:18px;background:#f1f8ee}
+.final .symbol{font-size:36px;color:#9e895d;margin-bottom:18px}
+.final h1{font-size:32px}
+.final p{color:#78857d;line-height:1.5}
+#announcer{min-height:20px;color:#8c946f;font-size:12px;margin:12px 0}
+@media(min-width:600px){body{padding-top:32px}.card{padding:0 20px}}
+@media(prefers-reduced-motion:no-preference){.screen{animation:appear .2s ease}@keyframes appear{from{opacity:0}to{opacity:1}}}
 </style>
 </head>
 <body>
@@ -72,57 +67,57 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
 <div class="steps" aria-label="Этапы приключения"><span class="active"></span><span></span><span></span></div>
 
 <section class="screen" id="q1" aria-labelledby="title1">
-<p class="eyebrow">01 / Найди точку</p>
-<h1 id="title1" tabindex="-1">У этого вечера<br>есть координаты.</h1>
-<p class="sub">Пять отметок у моря. Одна знает, где мы встретимся. Остальные немного хитрят.</p>
+<p class="eyebrow">01 / Место</p>
+<h1 id="title1" tabindex="-1">Найди нашу точку</h1>
+<p class="sub">Пять точек. Одна — наша.</p>
 <div class="map-shell"><div id="map" aria-label="Карта набережной Нячанга"></div>
 <p class="map-error" id="map-error" hidden role="status">Карта не загрузилась. Проверь интернет и обнови страницу.</p></div>
-<p class="map-hint">Нажимай на отметки. Та самая откроет следующий шаг.</p>
+<p class="map-hint">Лови точку — двигайся дальше.</p>
 </section>
 
 <section class="screen" id="q2" hidden aria-labelledby="title2">
-<p class="eyebrow">02 / Найди меня</p>
-<h1 id="title2" tabindex="-1">Место знаешь.<br>А где искать меня?</h1>
-<p class="sub">Осталась маленькая деталь. Один из этих вариантов никуда не убежит.</p>
+<p class="eyebrow">02 / Где я</p>
+<h1 id="title2" tabindex="-1">Где я?</h1>
+<p class="sub">Один вариант не убежит.</p>
 <div class="choices">
-<button class="choice bad" type="button">На капитанском мостике</button>
-<button class="choice bad" type="button">Под самой подозрительной пальмой</button>
+<button class="choice bad" type="button">У воды</button>
+<button class="choice bad" type="button">У пальмы</button>
 <button class="choice good" type="button" data-next="photo">Правильный</button>
-<button class="choice bad" type="button">Там, где чайки делят добычу</button>
-<button class="choice bad" type="button">У секретного входа в море</button>
+<button class="choice bad" type="button">На лавочке</button>
+<button class="choice bad" type="button">У входа</button>
 </div>
 </section>
 
 <section class="screen" id="photo" hidden aria-labelledby="title-photo">
-<p class="eyebrow">02 / Точный ориентир</p>
-<h1 id="title-photo" tabindex="-1">Вот здесь<br>я буду ждать.</h1>
+<p class="eyebrow">02 / Ориентир</p>
+<h1 id="title-photo" tabindex="-1">Жду здесь</h1>
 <p class="sub" id="meeting-label">Правильный</p>
 <div class="photo-frame">
 <!-- Replace this placeholder with the actual meeting photo when supplied. -->
-<div class="photo-placeholder" id="meeting-photo"><span aria-hidden="true">⌖</span><strong>Здесь будет фото места</strong><p>Точный ориентир добавим, когда определимся с местом встречи.</p></div>
+<div class="photo-placeholder" id="meeting-photo"><span aria-hidden="true">⌖</span><strong>Здесь будет фото</strong><p>Добавим, когда выберем место.</p></div>
 </div>
 <button class="primary" type="button" data-next="q3">Дальше →</button>
 </section>
 
 <section class="screen" id="q3" hidden aria-labelledby="title3">
-<p class="eyebrow">03 / Маленькая формальность</p>
-<h1 id="title3" tabindex="-1">Ну что, как тебе<br>эта маленькая авантюра?</h1>
-<p class="sub">Капитан просит оставить совершенно независимый отзыв.</p>
+<p class="eyebrow">03 / Ну как</p>
+<h1 id="title3" tabindex="-1">Ну как тебе квест?</h1>
+<p class="sub">Только честно 😉</p>
 <div class="choices">
-<button class="choice bad" type="button">Я почти вызвала поисковый отряд</button>
-<button class="choice bad" type="button">Пирата найти сложнее, чем сокровище</button>
-<button class="choice good" type="button" data-next="final">★★★★★ Всё понравилось. Хочу ещё!</button>
-<button class="choice bad" type="button">Моя карта просит отпуск</button>
-<button class="choice bad" type="button">Сначала допрос капитана</button>
+<button class="choice bad" type="button">Я заблудилась</button>
+<button class="choice bad" type="button">Это был квест</button>
+<button class="choice good" type="button" data-next="final">★★★★★ Кайф. Хочу ещё</button>
+<button class="choice bad" type="button">Где мой приз?</button>
+<button class="choice bad" type="button">Нужен навигатор</button>
 </div>
 </section>
 
 <section class="screen" id="final" hidden aria-labelledby="title-final">
-<div class="final"><div class="symbol" aria-hidden="true">✧</div><p class="eyebrow">Отзыв принят</p><h1 id="title-final" tabindex="-1">Следующая авантюра<br>за мной 😉</h1><p>А сейчас — до встречи.</p></div>
+<div class="final"><div class="symbol" aria-hidden="true">✧</div><p class="eyebrow">Договорились</p><h1 id="title-final" tabindex="-1">Повторим 😉</h1><p>А сейчас — до встречи.</p></div>
 </section>
 
 <p id="announcer" role="status" aria-live="polite"></p>
-<p class="footer">Тестовая версия · Точка встречи и фотография пока не заданы.</p>
+<p class="footer">Тест · место и фото добавим позже.</p>
 <noscript><p>Для карты и игры нужно включить JavaScript в браузере.</p></noscript>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -159,28 +154,48 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
   }
 
   function evade(button) {
-    var arena = button.parentElement;
-    var siblings = Array.from(arena.querySelectorAll('.choice')).filter(function (other) { return other !== button; });
-    var oldTop = button.offsetTop;
-    var oldLeft = button.offsetLeft;
-    var width = button.offsetWidth;
-    var height = button.offsetHeight;
+    var before = button.getBoundingClientRect();
+    var viewport = window.visualViewport;
+    var leftEdge = (viewport ? viewport.offsetLeft : 0) + 12;
+    var topEdge = (viewport ? viewport.offsetTop : 0) + 12;
+    var viewWidth = viewport ? viewport.width : window.innerWidth;
+    var viewHeight = viewport ? viewport.height : window.innerHeight;
+    var rightEdge = leftEdge + viewWidth - before.width - 24;
+    var bottomEdge = topEdge + viewHeight - before.height - 28;
+    var minimumJump = Math.min(viewWidth,viewHeight) * 0.48;
+    var others = Array.from(button.parentElement.querySelectorAll('.choice'))
+      .filter(function (other) {return other !== button;})
+      .map(function (other) {return other.getBoundingClientRect();});
+    var history = button.recentTargets || [];
     var candidates = [];
-    // Pick a vacant slot; never cover the correct choice or leave the card.
-    for (var top = 12; top <= arena.clientHeight-height-12; top += 8) {
-      var free = siblings.every(function (other) {
-        return top + height + 6 <= other.offsetTop || top >= other.offsetTop + other.offsetHeight + 6;
-      });
-      if (free && Math.abs(top-oldTop) >= 10) candidates.push(top);
+    var distant = [];
+    // Sample the whole visible screen, not a row or a small card.
+    for (var x = leftEdge; x <= rightEdge; x += 16) {
+      for (var y = topEdge; y <= bottomEdge; y += 18) {
+        var clear = others.every(function (rect) {
+          return x + before.width + 8 < rect.left || x > rect.right + 8 ||
+            y + before.height + 8 < rect.top || y > rect.bottom + 8;
+        });
+        if (!clear) continue;
+        var distance = Math.hypot(x-before.left,y-before.top);
+        var point = {x:x,y:y,distance:distance};
+        distant.push(point);
+        if (distance >= minimumJump && history.every(function (old) {
+          return Math.hypot(x-old.x,y-old.y) >= 60;
+        })) candidates.push(point);
+      }
     }
-    var targetTop = candidates.length ? candidates[randomBetween(0,candidates.length-1)] : oldTop;
-    var maxLeft = arena.clientWidth-width-10;
-    var targetLeft = oldLeft < (10+maxLeft)/2 ? maxLeft : 10;
-    button.style.right = 'auto';
-    button.style.width = width + 'px';
-    button.style.top = targetTop + 'px';
-    button.style.left = targetLeft + 'px';
-    announcer.textContent = 'Этот вариант снова ускользнул.';
+    if (!candidates.length) {
+      distant.sort(function (a,b) {return b.distance-a.distance;});
+      candidates = distant.slice(0,Math.max(1,Math.ceil(distant.length/5)));
+    }
+    if (!candidates.length) return;
+    var target = candidates[randomBetween(0,candidates.length-1)];
+    button.style.position = 'fixed';
+    button.style.left = target.x + 'px';
+    button.style.top = target.y + 'px';
+    button.recentTargets = history.concat([{x:before.left,y:before.top},target]).slice(-8);
+    announcer.textContent = 'Не поймала 😏';
   }
 
   buttons.forEach(function (button) {
@@ -218,7 +233,7 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
     var icon = L.divIcon({
       className:'pin-icon',
       html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + (correct ? 'Правильный' : 'Отметка ' + (index+1)) + '"><span>' + (correct ? 'Правильный' : '✕') + '</span></button>',
-      iconSize:[48,48],iconAnchor:[24,48],popupAnchor:[0,-44]
+      iconSize:correct ? [66,38] : [34,38],iconAnchor:correct ? [33,38] : [17,38],popupAnchor:[0,-34]
     });
     var marker = L.marker(coast[pointIndex],{icon:icon,keyboard:false}).addTo(map);
     marker.coastIndex = pointIndex;
@@ -229,7 +244,7 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
       var title = document.createElement('strong');
       title.textContent = 'Правильный';
       var message = document.createElement('p');
-      message.textContent = 'Точка найдена. Теперь осталось найти меня.';
+      message.textContent = 'Точка наша. Теперь найди меня.';
       var next = document.createElement('button');
       next.type = 'button';
       next.className = 'primary';
@@ -243,49 +258,48 @@ h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-hei
       marker.bindPopup(popup);
     } else {
       marker.on('click',function () {
-        var available = [];
         var previous = map.latLngToContainerPoint(marker.getLatLng());
-        // Search along the actual coastal line, with space around every other pin.
-        for (var segment = 0; segment < coast.length-1; segment += 1) {
-          for (var fraction = 0; fraction < 1; fraction += 0.05) {
-            var position = L.latLng(
-              coast[segment][0] + (coast[segment+1][0]-coast[segment][0])*fraction,
-              coast[segment][1] + (coast[segment+1][1]-coast[segment][1])*fraction
-            );
-            var pixel = map.latLngToContainerPoint(position);
-            if (pixel.x < 30 || pixel.x > map.getSize().x-30 ||
-                pixel.y < 54 || pixel.y > map.getSize().y-16 ||
-                pixel.distanceTo(previous) < 12) continue;
-            if (markers.every(function (other) {
-              return other === marker || pixel.distanceTo(map.latLngToContainerPoint(other.getLatLng())) >= 54;
-            })) available.push(position);
+        var size = map.getSize();
+        var minimumJump = Math.min(size.x,size.y)*0.48;
+        var history = marker.recentTargets || [];
+        var available = [];
+        var distant = [];
+        // Every visible map area is eligible: city, coast and sea.
+        for (var x = 24; x < size.x-24; x += 14) {
+          for (var y = 52; y < size.y-30; y += 16) {
+            if (x < 72 && y < 118) continue; // Keep map controls clear.
+            var point = L.point(x,y);
+            if (!markers.every(function (other) {
+              return other === marker || point.distanceTo(map.latLngToContainerPoint(other.getLatLng())) >= 62;
+            })) continue;
+            var distance = point.distanceTo(previous);
+            var candidate = {point:point,distance:distance};
+            distant.push(candidate);
+            if (distance >= minimumJump && history.every(function (old) {
+              return point.distanceTo(map.latLngToContainerPoint(old)) >= 60;
+            })) available.push(candidate);
           }
         }
         if (!available.length) {
-          map.setView([12.2405,109.1968],14,{animate:false});
-          markers.forEach(function (other,i) {
-            if (other !== marker) other.setLatLng(coast[[0,2,4,6,8][i]]);
-          });
-          // The adjacent half-segment is clear of the five original pin positions.
-          var original = [0,2,4,6,8][index];
-          var adjacent = original === coast.length-1 ? original-1 : original+1;
-          var toward = L.latLng(
-            coast[original][0]*0.55 + coast[adjacent][0]*0.45,
-            coast[original][1]*0.55 + coast[adjacent][1]*0.45
-          );
-          available.push(toward);
-          if (map.latLngToContainerPoint(toward).distanceTo(previous) < 8) {
-            available.push(L.latLng(coast[original]));
-            available.shift();
-          }
+          distant.sort(function (a,b) {return b.distance-a.distance;});
+          available = distant.slice(0,Math.max(1,Math.ceil(distant.length/5)));
         }
-        marker.setLatLng(available[randomBetween(0,available.length-1)]);
-        announcer.textContent = 'Эта отметка хранит чужой секрет. Попробуй другую.';
+        if (!available.length) return;
+        var target = available[randomBetween(0,available.length-1)].point;
+        var location = map.containerPointToLatLng(target);
+        marker.recentTargets = history.concat([marker.getLatLng(),location]).slice(-8);
+        marker.setLatLng(location);
+        announcer.textContent = 'Эта точка не сдаётся 😏';
       });
     }
   });
   window.addEventListener('resize',function () {
-    buttons.forEach(function (button) { button.removeAttribute('style'); });
+    buttons.forEach(function (button) {
+      if (button.style.position !== 'fixed') return;
+      var rect = button.getBoundingClientRect();
+      button.style.left = Math.max(12,Math.min(rect.left,window.innerWidth-rect.width-12)) + 'px';
+      button.style.top = Math.max(12,Math.min(rect.top,window.innerHeight-rect.height-12)) + 'px';
+    });
     map.invalidateSize();
   });
   showScreenFromHash();
