@@ -1,285 +1,273 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кофе наедине?</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-    }
-
-    body {
-      min-height: 100vh;
-      padding: 16px;
-      font-family: "Trebuchet MS", Verdana, sans-serif;
-      color: #2e1f1a;
-      background: linear-gradient(150deg, #fff8ef, #ffe6d5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 760px;
-      background: #fffefb;
-      border: 2px solid #e9bea4;
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: 0 18px 40px rgba(68, 35, 24, 0.16);
-    }
-
-    .badge {
-      display: inline-block;
-      margin-bottom: 10px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid #f0c0a0;
-      color: #9c4a26;
-      background: #fff2e9;
-      font-size: 13px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 30px;
-      line-height: 1.15;
-    }
-
-    .sub {
-      margin: 0 0 20px;
-      color: #5d473d;
-      line-height: 1.4;
-    }
-
-    .screen {
-      display: none;
-    }
-
-    #q1 {
-      display: block;
-    }
-
-    .screen:target {
-      display: block;
-    }
-
-    body:has(.screen:target) #q1 {
-      display: none;
-    }
-
-    .question {
-      margin: 18px 0 10px;
-      font-size: 25px;
-      line-height: 1.2;
-      font-weight: 700;
-    }
-
-    .options {
-      min-height: 210px;
-      padding: 16px;
-      border: 1px dashed #efcdb8;
-      border-radius: 16px;
-      background: #fffaf5;
-    }
-
-    .option {
-      display: inline-block;
-      max-width: 100%;
-      margin: 0 8px 10px 0;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font: inherit;
-      font-size: 14px;
-      line-height: 1.2;
-      text-align: left;
-      text-decoration: none;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: transform 180ms ease, opacity 180ms ease;
-    }
-
-    .option.good {
-      color: #155724;
-      background: #dff7e5;
-      border: 1px solid #8de1a1;
-    }
-
-    .option.bad {
-      color: #575757;
-      background: #f2f2f2;
-      border: 1px solid #d2d2d2;
-    }
-
-    .option.bad:hover {
-      transform: translate(54px, -8px);
-      opacity: 0.72;
-    }
-
-    .progress {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #7d655b;
-    }
-
-    .final {
-      padding: 18px;
-      border: 1px solid #b5efc0;
-      border-radius: 16px;
-      background: #f2fff4;
-      text-align: center;
-    }
-
-    .final h2 {
-      margin: 0 0 8px;
-      font-size: 26px;
-    }
-
-    .final p {
-      margin: 0;
-      line-height: 1.4;
-    }
-
-    @media (max-width: 520px) {
-      body {
-        padding: 12px;
-        align-items: flex-start;
-      }
-
-      .card {
-        padding: 18px;
-        border-radius: 18px;
-      }
-
-      h1 {
-        font-size: 24px;
-      }
-
-      .question {
-        font-size: 22px;
-      }
-
-      .options {
-        min-height: 0;
-      }
-
-      .option {
-        display: inline-block;
-        width: auto;
-        margin-right: 0;
-        font-size: 14px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#102c34">
+<title>Маленькая авантюра</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:#102c34;color:#f5efe3}
+body{margin:0;padding:24px 16px calc(24px + env(safe-area-inset-bottom));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at top right,#24474b,transparent 65%),#102c34}
+button,a{-webkit-tap-highlight-color:transparent}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+.card{max-width:760px;margin:auto}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 28px;color:#d5bd8e;font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.compass{font-size:25px}
+h1{font-size:clamp(30px,7vw,48px);font-weight:600;letter-spacing:-1.5px;line-height:1.08;margin:0 0 14px}
+.sub{color:#b9caca;font-size:16px;line-height:1.6;margin:0 0 22px;max-width:520px}
+.steps{display:flex;gap:6px;margin:0 0 26px}
+.steps span{height:3px;background:#355157;flex:1;border-radius:3px}
+.steps .active{background:#dfbd7d}
+.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#dfbd7d;margin:0 0 12px}
+.map-shell{position:relative;border:1px solid #56716f;border-radius:22px;overflow:hidden;background:#bfd5d6}
+#map{height:clamp(340px,56svh,540px);width:100%;color:#18363c;z-index:0}
+.map-hint{padding:14px 16px;margin:0;color:#b9caca;font-size:13px;line-height:1.5}
+.map-error{background:#f4dfbc;color:#49351c;padding:12px;margin:0;font-size:13px}
+.pin-icon{background:none;border:0}
+.pin-button{width:48px;height:48px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);border:2px solid #fff2d4;background:#a74639;box-shadow:0 4px 14px #132b3460;color:#fff7e9;display:grid;place-items:center}
+.pin-button span{transform:rotate(45deg);font-size:18px;font-weight:700}
+.pin-button.correct{background:#8a642d}
+.pin-button.correct span{font-size:10px}
+.leaflet-popup-content{margin:16px;min-width:150px}
+.leaflet-popup-content p{margin:8px 0 14px}
+.leaflet-container{font-family:inherit}
+.primary{display:inline-block;border:0;border-radius:13px;padding:15px 21px;background:#e7c88e;color:#203238;font-weight:650;text-decoration:none;min-height:48px}
+.primary:focus-visible,.choice:focus-visible,.pin-button:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.choices{position:relative;border:1px solid #416066;border-radius:22px;height:420px;background:#18373e;overflow:hidden}
+.choice{position:absolute;left:14px;right:14px;min-height:52px;padding:12px 14px;border:1px solid #668080;border-radius:14px;background:#27474e;color:#f5efe3;text-align:left;line-height:1.3;font-size:15px}
+.choice:nth-child(1){top:18px}
+.choice:nth-child(2){top:94px}
+.choice:nth-child(3){top:170px}
+.choice:nth-child(4){top:246px}
+.choice:nth-child(5){top:322px}
+.choice.good{background:#e7c88e;border-color:#e7c88e;color:#203238;font-weight:650}
+#q3 .choices{height:470px}
+#q3 .choice:nth-child(1){top:18px}
+#q3 .choice:nth-child(2){top:104px}
+#q3 .choice:nth-child(3){top:190px}
+#q3 .choice:nth-child(4){top:276px}
+#q3 .choice:nth-child(5){top:362px}
+.photo-frame{padding:12px;border:1px solid #4d686c;border-radius:22px;background:#18373e;margin-bottom:20px}
+.photo-placeholder{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:26px;text-align:center;border:1px dashed #6d8280;border-radius:14px;color:#bacbc8;background:linear-gradient(145deg,#24484e,#18373e)}
+.photo-placeholder span{font-size:42px;color:#dfbd7d}
+.photo-placeholder p{font-size:14px;line-height:1.6;margin:0;max-width:260px}
+.meeting-photo{display:block;width:100%;height:auto;border-radius:14px}
+.footer{color:#92aaa9;font-size:12px;line-height:1.6;margin-top:24px}
+.final{padding:42px 22px;text-align:center;border:1px solid #516c6d;border-radius:22px;background:#1a3b42}
+.final .symbol{font-size:42px;color:#dfbd7d;margin-bottom:20px}
+.final h1{font-size:34px}
+.final p{color:#b9caca;line-height:1.6}
+#announcer{min-height:24px;color:#dfbd7d;font-size:13px;margin:14px 0}
+@media(min-width:600px){body{padding-top:40px}.card{padding:0 20px}.choice{left:24px;right:24px}}
+@media(prefers-reduced-motion:no-preference){.screen{animation:appear .3s ease}@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
+</style>
 </head>
 <body>
-  <main class="card">
-    <span class="badge">Тайная миссия: кофе</span>
-    <h1>Приглашение выпить кофе наедине</h1>
-    <p class="sub">Неправильные ответы можно увидеть, но поймать их почти невозможно.</p>
+<main class="card">
+<div class="topline"><span>Сегодня · Нячанг</span><span class="compass" aria-hidden="true">✧</span></div>
+<div class="steps" aria-label="Этапы приключения"><span class="active"></span><span></span><span></span></div>
 
-    <section class="screen" id="q1">
-      <div class="question">Когда пойдём кофе пить?</div>
-      <div class="options">
-        <a class="option good" href="#q2">Сегодня вечером</a>
-        <button class="option bad" type="button">Завтра после 18:00</button>
-        <button class="option bad" type="button">Никогда</button>
-        <button class="option bad" type="button">Через 15 лет</button>
-      </div>
-      <div class="progress">Вопрос 1 из 3</div>
-    </section>
+<section class="screen" id="q1" aria-labelledby="title1">
+<p class="eyebrow">01 / Найди точку</p>
+<h1 id="title1" tabindex="-1">У этого вечера<br>есть координаты.</h1>
+<p class="sub">Пять отметок у моря. Одна знает, где мы встретимся. Остальные немного хитрят.</p>
+<div class="map-shell"><div id="map" aria-label="Карта набережной Нячанга"></div>
+<p class="map-error" id="map-error" hidden role="status">Карта не загрузилась. Проверь интернет и обнови страницу.</p></div>
+<p class="map-hint">Нажимай на отметки. Та самая откроет следующий шаг.</p>
+</section>
 
-    <section class="screen" id="q2">
-      <div class="question">Где встретимся?</div>
-      <div class="options">
-        <a class="option good" href="#q3">Там где сидели в прошлый раз</a>
-        <a class="option good" href="#q3">Там где сидели но под крышей</a>
-        <button class="option bad" type="button">В нячанге</button>
-        <button class="option bad" type="button">В нячанге в троем</button>
-        <button class="option bad" type="button">В очереди в ЖЭК</button>
-      </div>
-      <div class="progress">Вопрос 2 из 3</div>
-    </section>
+<section class="screen" id="q2" hidden aria-labelledby="title2">
+<p class="eyebrow">02 / Найди меня</p>
+<h1 id="title2" tabindex="-1">Место знаешь.<br>А где искать меня?</h1>
+<p class="sub">Осталась маленькая деталь. Один из этих вариантов никуда не убежит.</p>
+<div class="choices">
+<button class="choice bad" type="button">На капитанском мостике</button>
+<button class="choice bad" type="button">Под самой подозрительной пальмой</button>
+<button class="choice good" type="button" data-next="photo">Правильный</button>
+<button class="choice bad" type="button">Там, где чайки делят добычу</button>
+<button class="choice bad" type="button">У секретного входа в море</button>
+</div>
+</section>
 
-    <section class="screen" id="q3">
-      <div class="question">Формат встречи?</div>
-      <div class="options">
-        <a class="option good" href="#final">Кофе...</a>
-        <button class="option bad" type="button">Кофе + прогулка</button>
-        <button class="option bad" type="button">Кофе плюс выяснение отношений</button>
-        <button class="option bad" type="button">Кофе плюс тепло и заботы</button>
-        <button class="option bad" type="button">Кофе с подругой</button>
-      </div>
-      <div class="progress">Вопрос 3 из 3</div>
-    </section>
+<section class="screen" id="photo" hidden aria-labelledby="title-photo">
+<p class="eyebrow">02 / Точный ориентир</p>
+<h1 id="title-photo" tabindex="-1">Вот здесь<br>я буду ждать.</h1>
+<p class="sub" id="meeting-label">Правильный</p>
+<div class="photo-frame">
+<!-- Replace this placeholder with the actual meeting photo when supplied. -->
+<div class="photo-placeholder" id="meeting-photo"><span aria-hidden="true">⌖</span><strong>Здесь будет фото места</strong><p>Точный ориентир добавим, когда определимся с местом встречи.</p></div>
+</div>
+<button class="primary" type="button" data-next="q3">Дальше →</button>
+</section>
 
-    <section class="screen" id="final">
-      <div class="final">
-        <h2>Ура! Тогда договорились.</h2>
-        <p>Пишу тебе и выбираем место с самым вкусным капучино.</p>
-      </div>
-    </section>
-  </main>
+<section class="screen" id="q3" hidden aria-labelledby="title3">
+<p class="eyebrow">03 / Маленькая формальность</p>
+<h1 id="title3" tabindex="-1">Ну что, как тебе<br>эта маленькая авантюра?</h1>
+<p class="sub">Капитан просит оставить совершенно независимый отзыв.</p>
+<div class="choices">
+<button class="choice bad" type="button">Я почти вызвала поисковый отряд</button>
+<button class="choice bad" type="button">Пирата найти сложнее, чем сокровище</button>
+<button class="choice good" type="button" data-next="final">★★★★★ Всё понравилось. Хочу ещё!</button>
+<button class="choice bad" type="button">Моя карта просит отпуск</button>
+<button class="choice bad" type="button">Сначала допрос капитана</button>
+</div>
+</section>
 
-  <script>
-    (function () {
-      var buttons = document.querySelectorAll('.option.bad');
-      var screens = document.querySelectorAll('.screen');
+<section class="screen" id="final" hidden aria-labelledby="title-final">
+<div class="final"><div class="symbol" aria-hidden="true">✧</div><p class="eyebrow">Отзыв принят</p><h1 id="title-final" tabindex="-1">Следующая авантюра<br>за мной 😉</h1><p>А сейчас — до встречи.</p></div>
+</section>
 
-      function showScreenFromHash() {
-        var hash = window.location.hash || '#q1';
-        for (var index = 0; index < screens.length; index += 1) {
-          screens[index].style.display = screens[index].id === hash.slice(1) ? 'block' : 'none';
-        }
-      }
+<p id="announcer" role="status" aria-live="polite"></p>
+<p class="footer">Тестовая версия · Точка встречи и фотография пока не заданы.</p>
+<noscript><p>Для карты и игры нужно включить JavaScript в браузере.</p></noscript>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  'use strict';
+  var screens = document.querySelectorAll('.screen');
+  var buttons = document.querySelectorAll('.choice.bad');
+  var announcer = document.getElementById('announcer');
+  var current = 'q1';
+  var map;
+  // Demo coordinates along Tran Phu; replace the third point with the real meeting location.
+  var coast = [
+    [12.2278,109.1995],[12.2311,109.1983],[12.2346,109.1973],
+    [12.2380,109.1967],[12.2413,109.1958],[12.2445,109.1948],
+    [12.2475,109.1938],[12.2505,109.1927],[12.2534,109.1913]
+  ];
+  var markers = [];
 
-      function randomBetween(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      }
+  function showScreenFromHash() {
+    // Steps are advanced by a correct answer, never by typing an arbitrary URL hash.
+    screens.forEach(function (screen) { screen.hidden = screen.id !== current; });
+    var step = current === 'q1' ? 0 : (current === 'q2' || current === 'photo' ? 1 : 2);
+    document.querySelectorAll('.steps span').forEach(function (bar, index) {
+      bar.classList.toggle('active', index <= step);
+    });
+    announcer.textContent = '';
+    window.scrollTo(0,0);
+    if (current !== 'q1') document.querySelector('#' + current + ' h1').focus({preventScroll:true});
+  }
 
-      function evade(button) {
-        var rect = button.getBoundingClientRect();
-        var maxX = Math.max(20, window.innerWidth - rect.width - 20);
-        var maxY = Math.max(20, window.innerHeight - rect.height - 20);
-        var targetX = randomBetween(10, maxX);
-        var targetY = randomBetween(10, maxY);
-        var shiftX = targetX - rect.left;
-        var shiftY = targetY - rect.top;
-        button.style.transform = 'translate(' + shiftX + 'px, ' + shiftY + 'px)';
-        button.style.opacity = '0.7';
+  function randomBetween(min,max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
-        window.setTimeout(function () {
-          button.style.transform = '';
-          button.style.opacity = '1';
-        }, 700);
-      }
+  function evade(button) {
+    var arena = button.parentElement;
+    var siblings = Array.from(arena.querySelectorAll('.choice')).filter(function (other) { return other !== button; });
+    var oldTop = button.offsetTop;
+    var oldLeft = button.offsetLeft;
+    var width = button.offsetWidth;
+    var height = button.offsetHeight;
+    var candidates = [];
+    // Pick a vacant slot; never cover the correct choice or leave the card.
+    for (var top = 12; top <= arena.clientHeight-height-12; top += 8) {
+      var free = siblings.every(function (other) {
+        return top + height + 6 <= other.offsetTop || top >= other.offsetTop + other.offsetHeight + 6;
+      });
+      if (free && Math.abs(top-oldTop) >= 10) candidates.push(top);
+    }
+    var targetTop = candidates.length ? candidates[randomBetween(0,candidates.length-1)] : oldTop;
+    var maxLeft = arena.clientWidth-width-10;
+    var targetLeft = oldLeft < (10+maxLeft)/2 ? maxLeft : 10;
+    button.style.right = 'auto';
+    button.style.width = width + 'px';
+    button.style.top = targetTop + 'px';
+    button.style.left = targetLeft + 'px';
+    announcer.textContent = 'Этот вариант снова ускользнул.';
+  }
 
-      for (var i = 0; i < buttons.length; i += 1) {
-        buttons[i].addEventListener('mouseenter', function () {
-          evade(this);
-        });
+  buttons.forEach(function (button) {
+    button.addEventListener('pointerdown',function (event) {
+      if (!event.isPrimary || event.button !== 0) return;
+      event.preventDefault();
+      evade(button);
+    });
+    button.addEventListener('click',function (event) {
+      event.preventDefault();
+      if (event.detail === 0) evade(button);
+    });
+  });
 
-        buttons[i].addEventListener('touchstart', function (event) {
-          event.preventDefault();
-          evade(this);
-        }, false);
-
-        buttons[i].addEventListener('click', function (event) {
-          event.preventDefault();
-          evade(this);
-        }, false);
-      }
-
-      window.addEventListener('hashchange', showScreenFromHash, false);
+  document.querySelectorAll('[data-next]').forEach(function (button) {
+    button.addEventListener('click',function () {
+      current = button.dataset.next;
       showScreenFromHash();
-    }());
-  </script>
+    });
+  });
+
+  if (typeof L === 'undefined') {
+    document.getElementById('map-error').hidden = false;
+    return;
+  }
+  map = L.map('map',{scrollWheelZoom:false,minZoom:13,maxZoom:17}).setView([12.2405,109.1968],14);
+  var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+  tiles.on('tileerror',function () { document.getElementById('map-error').hidden = false; });
+  tiles.on('tileload',function () { document.getElementById('map-error').hidden = true; });
+  // Five indistinguishable pins; the demo answer is explicitly labelled until configured.
+  [0,2,4,6,8].forEach(function (pointIndex,index) {
+    var correct = index === 2;
+    var icon = L.divIcon({
+      className:'pin-icon',
+      html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + (correct ? 'Правильный' : 'Отметка ' + (index+1)) + '"><span>' + (correct ? 'Правильный' : '✕') + '</span></button>',
+      iconSize:[48,48],iconAnchor:[24,48],popupAnchor:[0,-44]
+    });
+    var marker = L.marker(coast[pointIndex],{icon:icon,keyboard:false}).addTo(map);
+    marker.coastIndex = pointIndex;
+    marker.correct = correct;
+    markers.push(marker);
+    if (correct) {
+      var popup = document.createElement('div');
+      var title = document.createElement('strong');
+      title.textContent = 'Правильный';
+      var message = document.createElement('p');
+      message.textContent = 'Точка найдена. Теперь осталось найти меня.';
+      var next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'primary';
+      next.textContent = 'Дальше →';
+      next.addEventListener('click',function () {
+        map.closePopup();
+        current = 'q2';
+        showScreenFromHash();
+      });
+      popup.append(title,message,next);
+      marker.bindPopup(popup);
+    } else {
+      marker.on('click',function () {
+        var available = coast.map(function (_,i) {return i;}).filter(function (i) {
+          var pixel = map.latLngToContainerPoint(coast[i]);
+          return i !== marker.coastIndex &&
+            !markers.some(function (other) {return other !== marker && other.coastIndex === i;}) &&
+            pixel.x > 40 && pixel.x < map.getSize().x-40 &&
+            pixel.y > 64 && pixel.y < map.getSize().y-28;
+        });
+        if (!available.length) {
+          map.setView([12.2405,109.1968],14,{animate:false});
+          available = coast.map(function (_,i) {return i;}).filter(function (i) {
+            return i !== marker.coastIndex && !markers.some(function (other) {return other !== marker && other.coastIndex === i;});
+          });
+        }
+        marker.coastIndex = available[randomBetween(0,available.length-1)];
+        marker.setLatLng(coast[marker.coastIndex]);
+        announcer.textContent = 'Эта отметка хранит чужой секрет. Попробуй другую.';
+      });
+    }
+  });
+  window.addEventListener('resize',function () {
+    buttons.forEach(function (button) { button.removeAttribute('style'); });
+    map.invalidateSize();
+  });
+  showScreenFromHash();
+}());
+</script>
 </body>
 </html>
