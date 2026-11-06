@@ -125,7 +125,19 @@ for (const [name, engine, contextOptions] of [
         if (step === 'q2') {
           assert.ok(await page.locator('#photo').isVisible(), 'Correct answer reveals photo step');
           assert.equal(await page.locator('#meeting-label').textContent(), 'Z Beach Nha Trang');
-          assert.ok(await page.getByText('Здесь будет фото', { exact: true }).isVisible());
+          const photo = page.locator('#meeting-photo');
+          await photo.evaluate(image => image.decode());
+          const image = await photo.evaluate(image => ({
+            loaded:image.complete, width:image.naturalWidth, height:image.naturalHeight, src:image.currentSrc
+          }));
+          assert.equal(image.loaded, true);
+          assert.equal(image.width, 1032);
+          assert.equal(image.height, 1280);
+          assert.ok(image.src.endsWith('/z-beach.jpg'), 'Uploaded meeting photo is shown');
+          const photoBox = await photo.boundingBox();
+          assert.ok(photoBox.width <= page.viewportSize().width, 'Photo fits mobile screen');
+          assert.ok(Math.abs(photoBox.height/photoBox.width - 1280/1032) < 0.01, 'Full photo preserves aspect ratio without cropping');
+          assert.equal(await page.getByText('Здесь будет фото', { exact: true }).count(), 0);
           await page.locator('#photo .primary').click();
         }
       }
