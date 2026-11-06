@@ -57,6 +57,18 @@ for (const [name, engine, contextOptions] of [
       const allowedLand = new Set(await page.locator('#land-points').evaluate(el =>
         JSON.parse(el.textContent).map(point => JSON.stringify(point))));
       assert.ok(allowedLand.size > 1000, 'Mapped city streets and footpaths available');
+      assert.equal(await page.locator('.user-location').count(), 0, 'Location is requested only after a tap');
+      await context.setGeolocation({ latitude: 12.2405, longitude: 109.1968, accuracy: 25 });
+      await context.grantPermissions(['geolocation'], { origin: new URL(url).origin });
+      await page.getByRole('button', { name: 'Моя локация' }).click();
+      await page.locator('.user-location').waitFor({ state: 'attached' });
+      assert.equal(await page.locator('#location-status').textContent(), 'Ты на карте');
+      assert.equal(await page.locator('.user-location').count(), 1);
+      assert.equal(await page.locator('.user-accuracy').count(), 1);
+      await page.getByRole('button', { name: 'Моя локация' }).click();
+      await page.waitForFunction(() => !document.getElementById('locate-me').disabled);
+      assert.equal(await page.locator('.user-location').count(), 1, 'Repeated lookup updates one marker');
+      assert.equal(await page.locator('.pin-button').count(), 5, 'Location marker is separate from five game pins');
       const falsePin = page.locator('.pin-button:not(.correct)').first();
       for (let i = 0; i < 15; i++) {
         const before = await falsePin.boundingBox();
@@ -103,6 +115,23 @@ for (const [name, engine, contextOptions] of [
       assert.deepEqual(errors, []);
       await page.reload({ waitUntil: 'networkidle' });
       assert.ok(await page.locator('#q1').isVisible(), 'Refresh restarts invitation');
+      assert.equal(await page.getByText('Один вариант не убежит.', { exact: true }).count(), 0, 'No answer hints');
+      assert.equal(await page.locator('.user-location').count(), 0);
+      // Deterministically verify denial and timeout without needing physical GPS.
+      await page.evaluate(() => {
+        navigator.geolocation.getCurrentPosition = (success, error) => error({ code: 1, message: 'Denied' });
+      });
+      await page.getByRole('button', { name: 'Моя локация' }).click();
+      assert.match(await page.locator('#location-status').textContent(), /Разреши доступ/);
+      assert.equal(await page.getByRole('button', { name: 'Моя локация' }).isEnabled(), true);
+      await page.evaluate(() => {
+        navigator.geolocation.getCurrentPosition = (success, error) => error({ code: 3, message: 'Timeout' });
+      });
+      await page.getByRole('button', { name: 'Моя локация' }).click();
+      assert.match(await page.locator('#location-status').textContent(), /Не удалось определить/);
+      assert.equal(await page.getByRole('button', { name: 'Моя локация' }).isEnabled(), true);
+      assert.equal(await page.locator('.pin-button').count(), 5);
+      assert.deepEqual(errors, []);
     } finally {
       await browser.close();
     }
