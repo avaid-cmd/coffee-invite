@@ -27,6 +27,15 @@ for (const [name, engine, contextOptions] of [
           get() { return leaflet; },
           set(value) {
             leaflet = value;
+            const initialize = value.Marker.prototype.initialize;
+            value.Marker.prototype.initialize = function (latlng, options) {
+              const result = initialize.apply(this, arguments);
+              if (options && options.icon && options.icon.options.html.includes(' correct')) {
+                const point = this.getLatLng();
+                window.meetingPoint = [point.lat, point.lng];
+              }
+              return result;
+            };
             const original = value.Marker.prototype.setLatLng;
             value.Marker.prototype.setLatLng = function () {
               const result = original.apply(this, arguments);
@@ -45,6 +54,14 @@ for (const [name, engine, contextOptions] of [
       await page.locator('.pin-button').last().waitFor();
       assert.equal(await page.locator('.pin-button').count(), 5);
       assert.equal(await page.locator('.pin-button.correct').count(), 1);
+      assert.deepEqual(await page.evaluate(() => window.meetingPoint), [12.228754, 109.200047], 'Correct pin is Z Beach Nha Trang');
+      const pinStyles = await page.locator('.pin-button').evaluateAll(pins => pins.map(pin => {
+        const style = getComputedStyle(pin);
+        const label = getComputedStyle(pin.querySelector('span'));
+        return JSON.stringify([style.backgroundColor,style.width,style.height,style.borderRadius,label.fontSize,pin.textContent]);
+      }));
+      assert.equal(new Set(pinStyles).size, 1, 'All five map pins look identical');
+      assert.equal(await page.locator('.footer').count(), 0, 'No test-version footer');
       assert.ok(await page.locator('.leaflet-tile-loaded').count() > 0, 'Real map tiles loaded');
       await page.evaluate(() => { location.hash = 'final'; });
       assert.ok(await page.locator('#q1').isVisible(), 'Hash cannot skip the game');
@@ -84,6 +101,7 @@ for (const [name, engine, contextOptions] of [
         assert.equal(await page.locator('.leaflet-popup').count(), 0);
       }
       await page.locator('.pin-button.correct').click();
+      assert.equal(await page.locator('.leaflet-popup strong').textContent(), 'Z Beach Nha Trang');
       await page.getByRole('button', { name: 'Дальше →', exact: true }).click();
       for (const step of ['q2', 'q3']) {
         assert.ok(await page.locator('#' + step).isVisible());
@@ -106,6 +124,7 @@ for (const [name, engine, contextOptions] of [
         await page.locator('#' + step + ' .good').click();
         if (step === 'q2') {
           assert.ok(await page.locator('#photo').isVisible(), 'Correct answer reveals photo step');
+          assert.equal(await page.locator('#meeting-label').textContent(), 'Z Beach Nha Trang');
           assert.ok(await page.getByText('Здесь будет фото', { exact: true }).isVisible());
           await page.locator('#photo .primary').click();
         }

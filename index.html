@@ -34,8 +34,6 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 .pin-icon{background:none;border:0}
 .pin-button{width:34px;height:38px;padding:0;border-radius:50% 50% 50% 5px;border:2px solid white;background:#e39b79;box-shadow:0 3px 9px #59674d30;color:white;display:grid;place-items:center}
 .pin-button span{font-size:15px;font-weight:650}
-.pin-button.correct{background:#81ae94;width:66px;border-radius:12px}
-.pin-button.correct span{font-size:9px}
 .leaflet-popup-content{margin:14px;min-width:150px}
 .leaflet-popup-content p{margin:8px 0 12px}
 .leaflet-container{font-family:inherit}
@@ -95,10 +93,10 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <section class="screen" id="photo" hidden aria-labelledby="title-photo">
 <p class="eyebrow">02 / Ориентир</p>
 <h1 id="title-photo" tabindex="-1">Жду здесь</h1>
-<p class="sub" id="meeting-label">Правильный</p>
+<p class="sub" id="meeting-label">Z Beach Nha Trang</p>
 <div class="photo-frame">
 <!-- Replace this placeholder with the actual meeting photo when supplied. -->
-<div class="photo-placeholder" id="meeting-photo"><span aria-hidden="true">⌖</span><strong>Здесь будет фото</strong><p>Добавим, когда выберем место.</p></div>
+<div class="photo-placeholder" id="meeting-photo"><span aria-hidden="true">⌖</span><strong>Здесь будет фото</strong></div>
 </div>
 <button class="primary" type="button" data-next="q3">Дальше →</button>
 </section>
@@ -121,7 +119,6 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 </section>
 
 <p id="announcer" role="status" aria-live="polite"></p>
-<p class="footer">Тест · место и фото добавим позже.</p>
 <noscript><p>Для карты и игры нужно включить JavaScript в браузере.</p></noscript>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -139,7 +136,9 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var map;
   var userLocation;
   var userAccuracy;
-  // Demo coordinates along Tran Phu; replace the third point with the real meeting location.
+  // Z Beach Nha Trang, from its Google Maps listing linked by Wanderlog.
+  var meetingPoint = [12.228754,109.200047];
+  // Initial decoys along Tran Phu.
   var coast = [
     [12.2278,109.1995],[12.2311,109.1983],[12.2346,109.1973],
     [12.2380,109.1967],[12.2413,109.1958],[12.2445,109.1948],
@@ -279,24 +278,24 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   });
   tiles.on('tileerror',function () { document.getElementById('map-error').hidden = false; });
   tiles.on('tileload',function () { document.getElementById('map-error').hidden = true; });
-  // Five indistinguishable pins; the demo answer is explicitly labelled until configured.
-  [0,2,4,6,8].forEach(function (pointIndex,index) {
+  // Identical pins; only the meeting location opens the next step.
+  [2,4,0,6,8].forEach(function (pointIndex,index) {
     var correct = index === 2;
     var icon = L.divIcon({
       className:'pin-icon',
-      html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + (correct ? 'Правильный' : 'Отметка ' + (index+1)) + '"><span>' + (correct ? 'Правильный' : '✕') + '</span></button>',
-      iconSize:correct ? [66,38] : [34,38],iconAnchor:correct ? [33,38] : [17,38],popupAnchor:[0,-34]
+      html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + ('Отметка ' + (index+1)) + '"><span>' + '✕' + '</span></button>',
+      iconSize:[34,38],iconAnchor:[17,38],popupAnchor:[0,-34]
     });
-    var marker = L.marker(coast[pointIndex],{icon:icon,keyboard:false}).addTo(map);
+    var marker = L.marker(correct ? meetingPoint : coast[pointIndex],{icon:icon,keyboard:false}).addTo(map);
     marker.coastIndex = pointIndex;
     marker.correct = correct;
     markers.push(marker);
     if (correct) {
       var popup = document.createElement('div');
       var title = document.createElement('strong');
-      title.textContent = 'Правильный';
+      title.textContent = 'Z Beach Nha Trang';
       var message = document.createElement('p');
-      message.textContent = 'Точка наша. Теперь найди меня.';
+      message.textContent = 'Встречаемся здесь.';
       var next = document.createElement('button');
       next.type = 'button';
       next.className = 'primary';
