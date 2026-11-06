@@ -107,6 +107,12 @@ for (const [name, engine, contextOptions] of [
         assert.ok(await page.locator('#' + step).isVisible());
         assert.equal(await page.locator('#' + step + ' .choice').count(), 5);
         assert.equal(await page.locator('#' + step + ' .good').count(), 1);
+        const labels = await page.locator('#' + step + ' .choice').allTextContents();
+        assert.deepEqual(labels, step === 'q2'
+          ? ['В море','На подушках','На баре','У входа','Где-то в Нячанге']
+          : ['18:00','00:00','19:30','14:00','17:00']);
+        assert.equal(await page.locator('#' + step + ' .good').textContent(), step === 'q2' ? 'На баре' : '19:30');
+        if (step === 'q3') assert.equal(await page.locator('#title3').textContent(), 'Я жду тебя в…');
         for (const button of await page.locator('#' + step + ' .bad').all()) {
           for (let i = 0; i < 8; i++) {
             const before = await button.boundingBox();
@@ -142,6 +148,7 @@ for (const [name, engine, contextOptions] of [
         }
       }
       assert.ok(await page.locator('#final').isVisible());
+      assert.ok(await page.getByText('Я жду тебя в 19:30.', { exact: true }).isVisible(), 'Meeting time confirmed');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       assert.deepEqual(errors, []);
       await page.reload({ waitUntil: 'networkidle' });
