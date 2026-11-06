@@ -18,6 +18,25 @@ for (const [name, engine, contextOptions] of [
     try {
       const context = await browser.newContext(contextOptions);
       const page = await context.newPage();
+      // Observe Leaflet marker updates without adding test hooks to application code.
+      await page.addInitScript(() => {
+        let leaflet;
+        window.markerMoves = [];
+        Object.defineProperty(window, 'L', {
+          configurable: true,
+          get() { return leaflet; },
+          set(value) {
+            leaflet = value;
+            const original = value.Marker.prototype.setLatLng;
+            value.Marker.prototype.setLatLng = function () {
+              const result = original.apply(this, arguments);
+              const point = this.getLatLng();
+              window.markerMoves.push([point.lat, point.lng]);
+              return result;
+            };
+          }
+        });
+      });
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(url + '?test=' + Date.now(), { waitUntil: 'networkidle' });
@@ -35,12 +54,17 @@ for (const [name, engine, contextOptions] of [
         assert.ok(box.x >= map.x && box.x + box.width <= map.x + map.width, 'Pin horizontally inside map');
         assert.ok(box.y >= map.y && box.y + box.height <= map.y + map.height, 'Pin vertically inside map');
       }
+      const allowedLand = new Set(await page.locator('#land-points').evaluate(el =>
+        JSON.parse(el.textContent).map(point => JSON.stringify(point))));
+      assert.ok(allowedLand.size > 1000, 'Mapped city streets and footpaths available');
       const falsePin = page.locator('.pin-button:not(.correct)').first();
       for (let i = 0; i < 15; i++) {
         const before = await falsePin.boundingBox();
         const mapBefore = await page.locator('#map').boundingBox();
         if (contextOptions.hasTouch) await falsePin.tap(); else await falsePin.click();
         const after = await falsePin.boundingBox();
+        const target = await page.evaluate(() => window.markerMoves.at(-1));
+        assert.ok(allowedLand.has(JSON.stringify(target)), 'Jump lands on a mapped street or footpath, never arbitrary sea pixels');
         assert.ok(Math.hypot(before.x-after.x,before.y-after.y) >= Math.min(mapBefore.width,mapBefore.height)*0.40, 'False pin makes a large jump');
         const mapAfter = await page.locator('#map').boundingBox();
         assert.ok(after.x >= mapAfter.x && after.x+after.width <= mapAfter.x+mapAfter.width && after.y >= mapAfter.y && after.y+after.height <= mapAfter.y+mapAfter.height, 'Jump stays inside map');
