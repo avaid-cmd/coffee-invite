@@ -31,7 +31,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 #map{height:clamp(420px,60svh,560px);width:100%;color:#30423f;z-index:0}
 .map-hint{padding:12px 0;margin:0;color:#78857d;font-size:12px;line-height:1.5}
 .map-error{background:#fff0cc;color:#795923;padding:12px;margin:0;font-size:13px}
-.pin-icon{background:none;border:0}
+.pin-icon{background:none;border:0;cursor:pointer;touch-action:manipulation}.pin-icon .pin-button{pointer-events:none}
 .pin-button{width:34px;height:38px;padding:0;border-radius:50% 50% 50% 5px;border:2px solid white;background:#81ae94;box-shadow:0 3px 9px #59674d30;color:white;display:grid;place-items:center}
 .leaflet-popup-content{margin:14px;min-width:150px}
 .leaflet-popup-content p{margin:8px 0 12px}
@@ -144,11 +144,11 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var meetingPoint = [12.236945,109.1936897];
   // Four decoy pins on nearby city blocks, scattered around the restaurant.
   var coast = [
-    [12.2391,109.1917], // northwest
-    [12.2390,109.1958], // northeast
-    [12.2349,109.1919], // southwest
-    [12.2350,109.1957], // southeast
-    [12.2370,109.1937]  // unused fallback
+    [12.2392,109.1915], // northwest decoy
+    [12.2390,109.1958], // northeast decoy
+    [12.2349,109.1918], // southwest decoy
+    [12.2350,109.1958], // southeast decoy
+    [12.2370,109.1937]  // spare coordinate
   ];  var markers = [];
   var landPoints = JSON.parse(document.getElementById('land-points').textContent);
 
@@ -324,11 +324,12 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     var correct = index === 2;
     var icon = L.divIcon({
       className:'pin-icon',
-      html:'<button type="button" class="pin-button' + (correct ? ' correct' : '') + '" aria-label="' + ('Отметка ' + (index+1)) + '"></button>',
+      html:'<span class="pin-button" aria-hidden="true"></span>',
       iconSize:[34,38],iconAnchor:[17,38],popupAnchor:[0,-34]
     });
-    var marker = L.marker(correct ? meetingPoint : coast[pointIndex],{icon:icon,keyboard:false}).addTo(map);
+    var marker = L.marker(correct ? meetingPoint : coast[pointIndex],{icon:icon,keyboard:true,title:"Отметка " + (index+1),riseOnHover:true}).addTo(map);
     marker.coastIndex = pointIndex;
+    marker.on("add",function () { var el=marker.getElement(); if(el) el.setAttribute("aria-label","Отметка "+(index+1)); });
     marker.correct = correct;
     markers.push(marker);
     if (correct) {
@@ -352,38 +353,32 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
       marker.on('click',function () {
         var previous = map.latLngToContainerPoint(marker.getLatLng());
         var size = map.getSize();
-        var minimumJump = Math.min(size.x,size.y)*0.48;
-        var history = marker.recentTargets || [];
+        var minimumJump = Math.min(size.x,size.y)*0.28;
         var available = [];
-        var distant = [];
-        // Choose mapped public streets and footpaths inside the current view.
-        // Never fall back to arbitrary pixels, which can represent open water.
+        // Pick a real mapped street point visible on screen, avoiding all other pins.
         landPoints.forEach(function (coordinates) {
           var location = L.latLng(coordinates);
           var point = map.latLngToContainerPoint(location);
-          if (point.x < 24 || point.x > size.x-24 || point.y < 52 || point.y > size.y-30) return;
-          if (point.x < 72 && point.y < 118) return;
+          if (point.x < 48 || point.x > size.x-48 || point.y < 65 || point.y > size.y-48) return;
+          if (point.x < 85 && point.y < 130) return;
+          if (point.distanceTo(previous) < minimumJump) return;
           if (!markers.every(function (other) {
-            return other === marker || point.distanceTo(map.latLngToContainerPoint(other.getLatLng())) >= 62;
+            return other === marker || point.distanceTo(map.latLngToContainerPoint(other.getLatLng())) > 85;
           })) return;
-          var distance = point.distanceTo(previous);
-          var candidate = {location:location,distance:distance};
-          distant.push(candidate);
-          if (distance >= minimumJump && history.every(function (old) {
-            return point.distanceTo(map.latLngToContainerPoint(old)) >= 60;
-          })) available.push(candidate);
+          available.push(location);
         });
+        // Always move if the street data has no eligible point.
         if (!available.length) {
-          distant.sort(function (a,b) {return b.distance-a.distance;});
-          available = distant.slice(0,Math.max(1,Math.ceil(distant.length/5)));
+          var directions = [[.0018,.0015],[-.0018,-.0015],[.0018,-.0015],[-.0018,.0015]];
+          directions.forEach(function (delta) {
+            var location = L.latLng(marker.getLatLng().lat+delta[0],marker.getLatLng().lng+delta[1]);
+            var point = map.latLngToContainerPoint(location);
+            if (point.x > 40 && point.x < size.x-40 && point.y > 60 && point.y < size.y-40 &&
+                markers.every(function(other){return other===marker || point.distanceTo(map.latLngToContainerPoint(other.getLatLng()))>75;})) available.push(location);
+          });
         }
-        if (!available.length) {
-          announcer.textContent = 'Верни карту к городу — здесь нет точек для прыжка.';
-          return;
-        }
-        var location = available[randomBetween(0,available.length-1)].location;
-        marker.recentTargets = history.concat([marker.getLatLng(),location]).slice(-8);
-        marker.setLatLng(location);
+        if (!available.length) { announcer.textContent = 'Передвинь карту немного ближе к центру.'; return; }
+        marker.setLatLng(available[randomBetween(0,available.length-1)]);
         announcer.textContent = 'Эта точка не сдаётся 😏';
       });
     }
