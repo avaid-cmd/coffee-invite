@@ -46,7 +46,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 .choice:nth-child(5){top:176px;left:0}
 .choice{position:absolute;width:calc((100% - 12px)/2);max-width:min(220px,calc(100vw - 32px));min-height:64px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:center;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
 .choice.bad[style]{z-index:1000}
-.unlock-center{display:flex;justify-content:center;align-items:center;min-height:160px}.unlock-center .primary{min-width:190px;text-align:center;transition:transform .12s,background .12s}.unlock-center .primary:active{transform:scale(.94);background:#c0d9c8}.unlock-tapped{animation:tapFeedback .35s ease}@keyframes tapFeedback{0%,100%{transform:scale(1)}45%{transform:scale(.91);background:#b8d8c3}}.photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
+.countdown-wrap{text-align:center;margin:35px auto 0}.countdown-label{font-size:13px;color:#78857d;margin:0 0 8px}.countdown{font-variant-numeric:tabular-nums;font-size:clamp(34px,9vw,54px);font-weight:650;letter-spacing:2px;color:#30423f}.unlock-center{display:flex;justify-content:center;align-items:center;min-height:160px}.unlock-center .primary{min-width:190px;text-align:center;transition:transform .12s,background .12s}.unlock-center .primary:active{transform:scale(.94);background:#c0d9c8}.unlock-tapped{animation:tapFeedback .35s ease}@keyframes tapFeedback{0%,100%{transform:scale(1)}45%{transform:scale(.91);background:#b8d8c3}}.photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
 .photo-placeholder{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px dashed #bed0bf;border-radius:12px;color:#7f8d7d;background:linear-gradient(145deg,#eff8ef,#fff9e9)}
 .photo-placeholder span{font-size:36px;color:#a48b5b}
 .photo-placeholder p{font-size:13px;line-height:1.5;margin:0;max-width:240px}
@@ -93,6 +93,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <p class="eyebrow">04 / Сюрприз</p>
 <h1 id="title-wait" tabindex="-1">Умница! С первой частью ты справилась 😉</h1>
 <p class="sub">Продолжение откроется в 18:00.</p>
+<div class="countdown-wrap"><p class="countdown-label">До открытия осталось</p><div id="unlock-countdown" class="countdown" role="timer" aria-label="Время до открытия">--:--:--</div></div>
 <div class="unlock-center"><button class="primary" id="unlock-photo" type="button">Откроется в 18:00</button></div>
 </section>
 
@@ -232,16 +233,21 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var unlockButton = document.getElementById('unlock-photo');
   var unlockStatus = document.getElementById('unlock-status');
   var photoImage = document.getElementById('meeting-photo');
-  function vietnamClock() {
-    var parts = new Intl.DateTimeFormat('en-GB',{
-      timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
-    }).formatToParts(new Date());
-    var fields = {};
-    parts.forEach(function (part) { fields[part.type] = part.value; });
-    return Number(fields.hour)*60 + Number(fields.minute);
+  // Vietnam is UTC+07:00 year-round. Use epoch milliseconds so seconds tick precisely.
+  function vietnamDayMilliseconds() {
+    var now = Date.now() + 7*60*60*1000;
+    return ((now % 86400000) + 86400000) % 86400000;
   }
   function updateUnlock() {
-    var unlocked = vietnamClock() >= 18*60;
+    var remaining = Math.max(0,18*60*60*1000 - vietnamDayMilliseconds());
+    var unlocked = remaining === 0;
+    var seconds = Math.ceil(remaining / 1000);
+    var hours = Math.floor(seconds/3600);
+    var minutes = Math.floor(seconds%3600/60);
+    var secs = seconds%60;
+    function two(n) { return String(n).padStart(2,'0'); }
+    document.getElementById('unlock-countdown').textContent = unlocked
+      ? '00:00:00' : two(hours)+':'+two(minutes)+':'+two(secs);
     unlockButton.dataset.unlocked = unlocked ? 'true' : 'false';
     unlockButton.textContent = unlocked ? 'Далее →' : 'Откроется в 18:00';
     if (unlocked && !photoImage.getAttribute('src')) photoImage.src = photoURL;
@@ -257,7 +263,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     current = 'photo';
     showScreenFromHash();
   });
-  window.setInterval(function () { if (current === 'wait') updateUnlock(); },10000);
+  window.setInterval(function () { if (current === 'wait') updateUnlock(); },1000);
   document.addEventListener('visibilitychange',function () {
     if (!document.hidden && current === 'wait') updateUnlock();
   });
