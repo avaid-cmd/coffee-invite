@@ -82,21 +82,29 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <p class="sub">Какое именно? Выбери правильный вариант 😉</p>
 <div class="choices">
 <button class="choice bad" type="button">Вход только с блеском на губах — таким же, как при встрече</button>
-<button class="choice good" type="button" data-next="photo">Мы оставляем все правила социальных рамок за порогом этого заведения</button>
+<button class="choice good" type="button" data-next="q3">Мы оставляем все правила социальных рамок за порогом этого заведения</button>
 <button class="choice bad" type="button">Добраться туда можно только на горном мотоцикле</button>
 <button class="choice bad" type="button">Диалоги ведём только на старославянском</button>
 <button class="choice bad" type="button">За людьми наблюдать запрещено</button>
 </div>
 </section>
 
+<section class="screen" id="wait" hidden aria-labelledby="title-wait">
+<p class="eyebrow">04 / Сюрприз</p>
+<h1 id="title-wait" tabindex="-1">Умница! С первой частью ты справилась 😉</h1>
+<p class="sub">Вторая часть приключения откроется сегодня в 18:00. Тогда узнаешь, где именно я тебя жду.</p>
+<p id="unlock-status" class="sub" role="status" aria-live="polite">Фотография пока скрыта.</p>
+<button class="primary" id="unlock-photo" type="button" disabled>Откроется в 18:00</button>
+</section>
+
 <section class="screen" id="photo" hidden aria-labelledby="title-photo">
-<p class="eyebrow">02 / Ориентир</p>
+<p class="eyebrow">05 / Ориентир</p>
 <h1 id="title-photo" tabindex="-1">Жду здесь</h1>
 <p class="sub" id="meeting-label">Buffet Hải Sản Nha Trang Mr Mộc · 30 Nguyễn Thiện Thuật</p>
 <div class="photo-frame">
-<img class="meeting-photo" id="meeting-photo" src="https://pasgo.vn/Upload/anh-chi-tiet/mr-moc-nha-trang-6-300-4236907273303.webp" alt="Фотография буфета Mr Mộc в Нячанге" width="1000" height="600" loading="lazy" decoding="async">
+<img class="meeting-photo" id="meeting-photo" alt="Фотография Buffet Hải Sản Mr Mộc" width="1000" height="600" loading="lazy" decoding="async">
 </div>
-<button class="primary" type="button" data-next="q3">Дальше →</button>
+<button class="primary" type="button" data-next="final">Дальше →</button>
 </section>
 
 <section class="screen" id="q3" hidden aria-labelledby="title3">
@@ -105,7 +113,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <div class="choices">
 <button class="choice bad" type="button">18:00</button>
 <button class="choice bad" type="button">00:00</button>
-<button class="choice good" type="button" data-next="final">19:30</button>
+<button class="choice good" type="button" data-next="wait">19:30</button>
 <button class="choice bad" type="button">14:00</button>
 <button class="choice bad" type="button">17:00</button>
 </div>
@@ -137,23 +145,24 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var meetingPoint = [12.236945,109.1936897];
   // Four decoy pins on nearby city blocks, scattered around the restaurant.
   var coast = [
-    [12.2392,109.1913], // northwest
-    [12.2390,109.1960], // northeast
-    [12.2348,109.1914], // southwest
-    [12.2349,109.1961]  // southeast
+    [12.2411,109.1891], // northwest
+    [12.2408,109.1984], // northeast
+    [12.2329,109.1894], // southwest
+    [12.2329,109.1980]  // southeast
   ];  var markers = [];
   var landPoints = JSON.parse(document.getElementById('land-points').textContent);
 
   function showScreenFromHash() {
     // Steps are advanced by a correct answer, never by typing an arbitrary URL hash.
     screens.forEach(function (screen) { screen.hidden = screen.id !== current; });
-    var step = current === 'q1' ? 0 : (current === 'q2' || current === 'photo' ? 1 : 2);
+    var step = current === 'q1' ? 0 : (current === 'q2' ? 1 : 2);
     document.querySelectorAll('.steps span').forEach(function (bar, index) {
       bar.classList.toggle('active', index <= step);
     });
     announcer.textContent = '';
     window.scrollTo(0,0);
     if (current !== 'q1') document.querySelector('#' + current + ' h1').focus({preventScroll:true});
+    if (current === 'wait') updateUnlock();
   }
 
   function randomBetween(min,max) {
@@ -218,7 +227,37 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     });
   });
 
-  document.querySelectorAll('[data-next]').forEach(function (button) {
+  // Unlock at 18:00 in Vietnam (UTC+7), independently of device timezone.
+  var photoURL = 'https://pasgo.vn/Upload/anh-chi-tiet/mr-moc-nha-trang-6-300-4236907273303.webp';
+  var unlockButton = document.getElementById('unlock-photo');
+  var unlockStatus = document.getElementById('unlock-status');
+  var photoImage = document.getElementById('meeting-photo');
+  function vietnamClock() {
+    var parts = new Intl.DateTimeFormat('en-GB',{
+      timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+    }).formatToParts(new Date());
+    var fields = {};
+    parts.forEach(function (part) { fields[part.type] = part.value; });
+    return Number(fields.hour)*60 + Number(fields.minute);
+  }
+  function updateUnlock() {
+    var unlocked = vietnamClock() >= 18*60;
+    unlockButton.disabled = !unlocked;
+    unlockButton.textContent = unlocked ? 'Узнать, где я жду →' : 'Откроется в 18:00';
+    unlockStatus.textContent = unlocked ? 'Вторая часть уже доступна!' : 'Фотография пока скрыта. Возвращайся в 18:00.';
+    if (unlocked && !photoImage.getAttribute('src')) photoImage.src = photoURL;
+  }
+  unlockButton.addEventListener('click',function () {
+    updateUnlock();
+    if (unlockButton.disabled) return;
+    current = 'photo';
+    showScreenFromHash();
+  });
+  window.setInterval(function () { if (current === 'wait') updateUnlock(); },10000);
+  document.addEventListener('visibilitychange',function () {
+    if (!document.hidden && current === 'wait') updateUnlock();
+  });
+    document.querySelectorAll('[data-next]').forEach(function (button) {
     button.addEventListener('click',function () {
       current = button.dataset.next;
       showScreenFromHash();
@@ -229,7 +268,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     document.getElementById('map-error').hidden = false;
     return;
   }
-  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView(meetingPoint,16);
+  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView(meetingPoint,15);
   var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
@@ -276,7 +315,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   });
   tiles.on('tileerror',function () { document.getElementById('map-error').hidden = false; });
   tiles.on('tileload',function () { document.getElementById('map-error').hidden = true; });
-  // Identical pins; only the meeting location opens the next step.
+  // Identical pins; four decoys surround the restaurant and stay within the initial view.
   [0,1,2,3,4].forEach(function (pointIndex,index) {
     var correct = index === 2;
     var icon = L.divIcon({
