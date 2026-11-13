@@ -46,7 +46,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 .choice:nth-child(5){top:176px;left:0}
 .choice{position:absolute;width:calc((100% - 12px)/2);max-width:min(220px,calc(100vw - 32px));min-height:64px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:center;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
 .choice.bad[style]{z-index:1000}
-.photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
+.unlock-center{display:flex;justify-content:center;align-items:center;min-height:160px}.unlock-center .primary{min-width:190px;text-align:center;transition:transform .12s,background .12s}.unlock-center .primary:active{transform:scale(.94);background:#c0d9c8}.unlock-tapped{animation:tapFeedback .35s ease}@keyframes tapFeedback{0%,100%{transform:scale(1)}45%{transform:scale(.91);background:#b8d8c3}}.photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
 .photo-placeholder{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px dashed #bed0bf;border-radius:12px;color:#7f8d7d;background:linear-gradient(145deg,#eff8ef,#fff9e9)}
 .photo-placeholder span{font-size:36px;color:#a48b5b}
 .photo-placeholder p{font-size:13px;line-height:1.5;margin:0;max-width:240px}
@@ -92,9 +92,8 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <section class="screen" id="wait" hidden aria-labelledby="title-wait">
 <p class="eyebrow">04 / Сюрприз</p>
 <h1 id="title-wait" tabindex="-1">Умница! С первой частью ты справилась 😉</h1>
-<p class="sub">Вторая часть откроется в 18:00. Тогда и продолжим 😉</p>
-<p id="unlock-status" class="sub" role="status" aria-live="polite">Фотография пока скрыта.</p>
-<button class="primary" id="unlock-photo" type="button" disabled>Откроется в 18:00</button>
+<p class="sub">Откроется в 18:00. Тогда и продолжим.</p>
+<div class="unlock-center"><button class="primary" id="unlock-photo" type="button">Откроется в 18:00</button></div>
 </section>
 
 <section class="screen" id="photo" hidden aria-labelledby="title-photo">
@@ -145,10 +144,11 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var meetingPoint = [12.236945,109.1936897];
   // Four decoy pins on nearby city blocks, scattered around the restaurant.
   var coast = [
-    [12.2411,109.1891], // northwest
-    [12.2408,109.1984], // northeast
-    [12.2329,109.1894], // southwest
-    [12.2329,109.1980]  // southeast
+    [12.2391,109.1917], // northwest
+    [12.2390,109.1958], // northeast
+    [12.2349,109.1919], // southwest
+    [12.2350,109.1957], // southeast
+    [12.2370,109.1937]  // unused fallback
   ];  var markers = [];
   var landPoints = JSON.parse(document.getElementById('land-points').textContent);
 
@@ -242,14 +242,18 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   }
   function updateUnlock() {
     var unlocked = vietnamClock() >= 18*60;
-    unlockButton.disabled = !unlocked;
-    unlockButton.textContent = unlocked ? 'Узнать, где я жду →' : 'Откроется в 18:00';
-    unlockStatus.textContent = unlocked ? 'Вторая часть уже доступна!' : 'Фотография пока скрыта. Возвращайся в 18:00.';
+    unlockButton.dataset.unlocked = unlocked ? 'true' : 'false';
+    unlockButton.textContent = unlocked ? 'Далее →' : 'Откроется в 18:00';
     if (unlocked && !photoImage.getAttribute('src')) photoImage.src = photoURL;
   }
   unlockButton.addEventListener('click',function () {
     updateUnlock();
-    if (unlockButton.disabled) return;
+    if (unlockButton.dataset.unlocked !== 'true') {
+      unlockButton.classList.remove('unlock-tapped');
+      void unlockButton.offsetWidth;
+      unlockButton.classList.add('unlock-tapped');
+      return;
+    }
     current = 'photo';
     showScreenFromHash();
   });
