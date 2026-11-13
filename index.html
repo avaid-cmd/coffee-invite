@@ -148,7 +148,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     [12.2390,109.1958], // northeast decoy
     [12.2349,109.1918], // southwest decoy
     [12.2350,109.1958], // southeast decoy
-    [12.2372,109.1903]  // fourth decoy, separate from restaurant
+    [12.2368,109.1980]  // fifth pin, near Tran Phu promenade
   ];  var markers = [];
   var landPoints = JSON.parse(document.getElementById('land-points').textContent);
 
@@ -272,7 +272,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     document.getElementById('map-error').hidden = false;
     return;
   }
-  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView(meetingPoint,15);
+  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView([12.23695,109.1953],15);
   var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
@@ -319,7 +319,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   });
   tiles.on('tileerror',function () { document.getElementById('map-error').hidden = false; });
   tiles.on('tileload',function () { document.getElementById('map-error').hidden = true; });
-  // Identical pins; four decoys surround the restaurant and stay within the initial view.
+  // Five unique markers: one restaurant and four decoys including promenade.
   [0,1,2,3,4].forEach(function (pointIndex,index) {
     var correct = index === 2;
     var icon = L.divIcon({
