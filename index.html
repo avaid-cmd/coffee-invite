@@ -91,9 +91,9 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <section class="screen" id="photo" hidden aria-labelledby="title-photo">
 <p class="eyebrow">02 / Ориентир</p>
 <h1 id="title-photo" tabindex="-1">Жду здесь</h1>
-<p class="sub" id="meeting-label">Z Beach Nha Trang</p>
+<p class="sub" id="meeting-label">Buffet Hải Sản Nha Trang Mr Mộc · 30 Nguyễn Thiện Thuật</p>
 <div class="photo-frame">
-<img class="meeting-photo" id="meeting-photo" src="./z-beach.jpg" alt="Вход в Z Beach Nha Trang" width="1032" height="1280" loading="lazy" decoding="async">
+<img class="meeting-photo" id="meeting-photo" src="https://pasgo.vn/Upload/anh-chi-tiet/mr-moc-nha-trang-6-300-4236907273303.webp" alt="Фотография буфета Mr Mộc в Нячанге" width="1000" height="600" loading="lazy" decoding="async">
 </div>
 <button class="primary" type="button" data-next="q3">Дальше →</button>
 </section>
@@ -132,13 +132,12 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var map;
   var userLocation;
   var userAccuracy;
-  // Z Beach Nha Trang, from its Google Maps listing linked by Wanderlog.
-  var meetingPoint = [12.228754,109.200047];
-  // Initial decoys along Tran Phu.
+  // Restaurant coordinates from PasGo Google Maps venue link.
+  var meetingPoint = [12.236945,109.1936897];
+  // Four decoy pins on nearby city blocks, scattered around the restaurant.
   var coast = [
-    [12.2278,109.1995],[12.2311,109.1983],[12.2346,109.1973],
-    [12.2380,109.1967],[12.2413,109.1958],[12.2445,109.1948],
-    [12.2475,109.1938],[12.2505,109.1927],[12.2534,109.1913]
+    [12.2380,109.1925],[12.2359,109.1926],[12.2381,109.1947],
+    [12.2358,109.1948]
   ];
   var markers = [];
   var landPoints = JSON.parse(document.getElementById('land-points').textContent);
@@ -228,7 +227,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     document.getElementById('map-error').hidden = false;
     return;
   }
-  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView([12.2405,109.1968],14);
+  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView(meetingPoint,16);
   var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
@@ -276,7 +275,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   tiles.on('tileerror',function () { document.getElementById('map-error').hidden = false; });
   tiles.on('tileload',function () { document.getElementById('map-error').hidden = true; });
   // Identical pins; only the meeting location opens the next step.
-  [2,4,0,6,8].forEach(function (pointIndex,index) {
+  [0,1,2,3,0].forEach(function (pointIndex,index) {
     var correct = index === 2;
     var icon = L.divIcon({
       className:'pin-icon',
@@ -290,7 +289,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     if (correct) {
       var popup = document.createElement('div');
       var title = document.createElement('strong');
-      title.textContent = 'Z Beach Nha Trang';
+      title.textContent = 'Buffet Hải Sản Nha Trang Mr Mộc';
       var message = document.createElement('p');
       message.textContent = 'Встречаемся здесь.';
       var next = document.createElement('button');
