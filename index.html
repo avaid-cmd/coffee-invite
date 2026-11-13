@@ -38,13 +38,13 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 .leaflet-container{font-family:inherit}
 .primary{display:inline-block;border:1px solid #9cc1ab;border-radius:11px;padding:10px 15px;background:#deeee3;color:#304b3c;font-weight:600;font-size:14px;text-decoration:none;min-height:40px}
 .primary:focus-visible,.choice:focus-visible,.pin-button:focus-visible{outline:3px solid #739d85;outline-offset:3px}
-.choices{position:relative;max-width:400px;min-height:190px;padding:12px 0;overflow:visible}
+.choices{position:relative;max-width:520px;min-height:280px;padding:12px 0;overflow:visible}
 .choice:nth-child(1){top:12px;left:0}
 .choice:nth-child(2){top:12px;left:calc(50% + 6px)}
-.choice:nth-child(3){top:68px;left:0}
-.choice:nth-child(4){top:68px;left:calc(50% + 6px)}
-.choice:nth-child(5){top:124px;left:0}
-.choice{position:absolute;width:calc((100% - 12px)/2);max-width:min(220px,calc(100vw - 32px));min-height:36px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:center;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
+.choice:nth-child(3){top:100px;left:0}
+.choice:nth-child(4){top:100px;left:calc(50% + 6px)}
+.choice:nth-child(5){top:176px;left:0}
+.choice{position:absolute;width:calc((100% - 12px)/2);max-width:min(220px,calc(100vw - 32px));min-height:64px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:center;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
 .choice.bad[style]{z-index:1000}
 .photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
 .photo-placeholder{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px dashed #bed0bf;border-radius:12px;color:#7f8d7d;background:linear-gradient(145deg,#eff8ef,#fff9e9)}
@@ -71,20 +71,20 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
 <h1 id="title1" tabindex="-1">Найди нашу точку</h1>
 <p class="sub">Пять точек. Одна — наша.</p>
 <div class="map-tools"><button class="primary" id="locate-me" type="button">⌖ Моя локация</button><p id="location-status" role="status" aria-live="polite" hidden></p></div>
-<div class="map-shell"><div id="map" aria-label="Карта набережной Нячанга"></div>
+<div class="map-shell"><div id="map" aria-label="Карта центра Нячанга возле Buffet Hải Sản Mr Mộc"></div>
 <p class="map-error" id="map-error" hidden role="status">Карта не загрузилась. Проверь интернет и обнови страницу.</p></div>
 <p class="map-hint">Лови точку — двигайся дальше.</p>
 </section>
 
 <section class="screen" id="q2" hidden aria-labelledby="title2">
-<p class="eyebrow">02 / Где я</p>
-<h1 id="title2" tabindex="-1">Где я?</h1>
+<p class="eyebrow">02 / Правило</p>
+<h1 id="title2" tabindex="-1">Но есть одно правило…</h1>
 <div class="choices">
-<button class="choice bad" type="button">В море</button>
-<button class="choice bad" type="button">На подушках</button>
-<button class="choice good" type="button" data-next="photo">На баре</button>
-<button class="choice bad" type="button">У входа</button>
-<button class="choice bad" type="button">Где-то в Нячанге</button>
+<button class="choice bad" type="button">Вход только с блеском на губах — таким же, как при встрече</button>
+<button class="choice bad" type="button">Добраться туда можно только на горном мотоцикле</button>
+<button class="choice good" type="button" data-next="photo">Все правила социальных рамок оставляем за порогом этого заведения</button>
+<button class="choice bad" type="button">Диалоги ведём только на старославянском</button>
+<button class="choice bad" type="button">За людьми наблюдать запрещено</button>
 </div>
 </section>
 
@@ -132,7 +132,7 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
   var map;
   var userLocation;
   var userAccuracy;
-  // Restaurant coordinates from PasGo Google Maps venue link.
+  // Buffet Hải Sản Mr Mộc, 30 Nguyễn Thiện Thuật, opposite 153.
   var meetingPoint = [12.236945,109.1936897];
   // Four decoy pins on nearby city blocks, scattered around the restaurant.
   var coast = [
@@ -289,9 +289,9 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
     if (correct) {
       var popup = document.createElement('div');
       var title = document.createElement('strong');
-      title.textContent = 'Buffet Hải Sản Nha Trang Mr Mộc';
+      title.textContent = 'Buffet Hải Sản Mr Mộc — 30 Nguyễn Thiện Thuật';
       var message = document.createElement('p');
-      message.textContent = 'Встречаемся здесь.';
+      message.textContent = 'Встречаемся здесь, напротив 153 Nguyễn Thiện Thuật.';
       var next = document.createElement('button');
       next.type = 'button';
       next.className = 'primary';
