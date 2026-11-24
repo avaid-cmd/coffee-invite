@@ -347,7 +347,30 @@ h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-heigh
         current = 'q2';
         showScreenFromHash();
       });
-      popup.append(title,message,next);
+      var address = document.createElement('textarea');
+      address.readOnly = true;
+      address.rows = 4;
+      address.value = "FLYO Rooftop Beach Club, 8 Sawatdirak Rd, Beyond Patong Hotel, Building 7, Patong, Kathu, Phuket 83150, Thailand";
+      address.setAttribute('aria-label','Адрес заведения');
+      address.style.cssText = 'display:block;width:100%;box-sizing:border-box;font:inherit;margin:8px 0;resize:none;';
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'primary';
+      copy.textContent = 'Скопировать адрес';
+      copy.style.marginBottom = '8px';
+      copy.addEventListener('click', async function () {
+        try {
+          if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+          await navigator.clipboard.writeText(address.value);
+          copy.textContent = 'Адрес скопирован ✓';
+        } catch (error) {
+          address.focus();
+          address.select();
+          address.setSelectionRange(0,address.value.length);
+          copy.textContent = 'Скопируй выделенный адрес';
+        }
+      });
+      popup.append(title,message,address,copy,next);
       marker.bindPopup(popup);
     } else {
       marker.on('click',function () {
