@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fffaf0">
+<title>Маленькая авантюра · FLYO</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:#fffaf0;color:#30423f}
+body{margin:0;padding:20px 16px calc(24px + env(safe-area-inset-bottom));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;min-height:100svh;background:radial-gradient(ellipse at top right,#e7f5ef,transparent 60%),#fffaf0}
+button,a{-webkit-tap-highlight-color:transparent}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+.card{max-width:760px;margin:auto}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 20px;color:#72877c;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.compass{font-size:23px;color:#a87736}
+h1{font-size:clamp(28px,7vw,40px);font-weight:650;letter-spacing:-1px;line-height:1.15;margin:0 0 12px}
+.sub{color:#78857d;font-size:14px;line-height:1.5;margin:0 0 20px}
+.steps{display:flex;gap:6px;margin:0 0 24px}
+.steps span{height:3px;background:#e6e8db;flex:1;border-radius:3px}
+.steps .active{background:#8ebda6}
+.eyebrow{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#a07e4c;margin:0 0 10px}
+.map-tools{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+.map-tools .primary{font-size:12px;padding:8px 11px;min-height:36px}
+.map-tools .primary:disabled{opacity:.65;cursor:wait}
+#location-status{margin:0;color:#78857d;font-size:12px;line-height:1.4}
+.map-shell{position:relative;border:1px solid #dfdfd0;border-radius:18px;overflow:hidden;background:#deeeec}
+#map{height:clamp(420px,60svh,560px);width:100%;color:#30423f;z-index:0}
+.map-hint{padding:12px 0;margin:0;color:#78857d;font-size:12px;line-height:1.5}
+.map-error{background:#fff0cc;color:#795923;padding:12px;margin:0;font-size:13px}
+.pin-icon{background:none;border:0;cursor:pointer;touch-action:manipulation}.pin-icon .pin-button{pointer-events:none}
+.pin-button{width:34px;height:38px;padding:0;border-radius:50% 50% 50% 5px;border:2px solid white;background:#81ae94;box-shadow:0 3px 9px #59674d30;color:white;display:grid;place-items:center}
+.leaflet-popup-content{margin:14px;min-width:150px}
+.leaflet-popup-content p{margin:8px 0 12px}
+.leaflet-container{font-family:inherit}
+.primary{display:inline-block;border:1px solid #9cc1ab;border-radius:11px;padding:10px 15px;background:#deeee3;color:#304b3c;font-weight:600;font-size:14px;text-decoration:none;min-height:40px}
+.primary:focus-visible,.choice:focus-visible,.pin-button:focus-visible{outline:3px solid #739d85;outline-offset:3px}
+.choices{position:relative;max-width:520px;min-height:280px;padding:12px 0;overflow:visible}
+.choice:nth-child(1){top:12px;left:0}
+.choice:nth-child(2){top:12px;left:calc(50% + 6px)}
+.choice:nth-child(3){top:100px;left:0}
+.choice:nth-child(4){top:100px;left:calc(50% + 6px)}
+.choice:nth-child(5){top:176px;left:0}
+.choice{position:absolute;width:calc((100% - 12px)/2);max-width:min(220px,calc(100vw - 32px));min-height:64px;padding:8px 10px;border:1px solid #d8dfd1;border-radius:10px;background:#fffefa;color:#596659;text-align:center;line-height:1.35;font-size:12px;box-shadow:0 2px 6px #6c79600a}
+.choice.bad[style]{z-index:1000}
+.countdown-wrap{display:flex;justify-content:center;margin:36px auto 8px}.countdown-ring{--progress:100%;--ring-color:#81ae94;width:min(68vw,250px);aspect-ratio:1;border-radius:50%;padding:12px;background:conic-gradient(var(--ring-color) var(--progress),#e1e6dc 0);box-shadow:0 4px 20px #30423f12;transition:background-color .3s}.countdown-core{width:100%;height:100%;border-radius:50%;background:#fffaf0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px;text-align:center}.countdown-label,.countdown-zone{font-size:12px;color:#78857d}.countdown{font-variant-numeric:tabular-nums;font-size:clamp(27px,7vw,38px);font-weight:650;letter-spacing:1px;color:#30423f}.unlock-center{display:flex;justify-content:center;align-items:center;min-height:160px}.unlock-center .primary{min-width:190px;text-align:center;transition:transform .12s,background .12s}.unlock-center .primary:active{transform:scale(.94);background:#c0d9c8}.unlock-tapped{animation:tapFeedback .35s ease}@keyframes tapFeedback{0%,100%{transform:scale(1)}45%{transform:scale(.91);background:#b8d8c3}}.photo-frame{padding:10px;border:1px solid #dbe2d4;border-radius:18px;background:#fffefa;margin-bottom:18px}
+.photo-placeholder{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px dashed #bed0bf;border-radius:12px;color:#7f8d7d;background:linear-gradient(145deg,#eff8ef,#fff9e9)}
+.photo-placeholder span{font-size:36px;color:#a48b5b}
+.photo-placeholder p{font-size:13px;line-height:1.5;margin:0;max-width:240px}
+.meeting-photo{display:block;width:100%;height:auto;border-radius:12px}
+.footer{color:#99a18e;font-size:11px;line-height:1.5;margin-top:20px}
+.final{padding:38px 20px;text-align:center;border:1px solid #d9e4d6;border-radius:18px;background:#f1f8ee}
+.final .symbol{font-size:36px;color:#9e895d;margin-bottom:18px}
+.final h1{font-size:32px}
+.final p{color:#78857d;line-height:1.5}
+#announcer{min-height:20px;color:#8c946f;font-size:12px;margin:12px 0}
+@media(min-width:600px){body{padding-top:32px}.card{padding:0 20px}}
+@media(prefers-reduced-motion:no-preference){.screen{animation:appear .2s ease}@keyframes appear{from{opacity:0}to{opacity:1}}}
+</style>
+</head>
+<body>
+<main class="card">
+<div class="topline"><span>Сегодня · Патонг</span><span class="compass" aria-hidden="true">✧</span></div>
+<div class="steps" aria-label="Этапы приключения"><span class="active"></span><span></span><span></span></div>
+
+<section class="screen" id="q1" aria-labelledby="title1">
+<p class="eyebrow">01 / Место</p>
+<h1 id="title1" tabindex="-1">Найди нашу точку</h1>
+<p class="sub">Пять точек. Одна — наша.</p>
+<div class="map-tools"><button class="primary" id="locate-me" type="button">⌖ Моя локация</button><p id="location-status" role="status" aria-live="polite" hidden></p></div>
+<div class="map-shell"><div id="map" aria-label="Карта Патонга возле FLYO"></div>
+<p class="map-error" id="map-error" hidden role="status">Карта не загрузилась. Проверь интернет и обнови страницу.</p></div>
+<p class="map-hint">Лови точку — двигайся дальше.</p>
+</section>
+
+<section class="screen" id="q2" hidden aria-labelledby="title2">
+<p class="eyebrow">02 / Правило</p>
+<h1 id="title2" tabindex="-1">Но есть одно правило!</h1>
+<p class="sub">Какое именно? Выбери правильный вариант 😉</p>
+<div class="choices">
+<button class="choice bad" type="button">Вход только с вновь сделанными ресничками</button>
+<button class="choice good" type="button" data-next="q3">Мы оставляем все правила социальных рамок за порогом этого заведения</button>
+<button class="choice bad" type="button">Добраться туда можно только на горном мотоцикле</button>
+<button class="choice bad" type="button">Диалоги ведём только на старославянском</button>
+<button class="choice bad" type="button">За людьми наблюдать запрещено</button>
+</div>
+</section>
+
+<section class="screen" id="wait" hidden aria-labelledby="title-wait">
+<p class="eyebrow">04 / Сюрприз</p>
+<h1 id="title-wait" tabindex="-1">Умница! С первой частью ты справилась 😉</h1>
+<p class="sub">Продолжение откроется в 18:00.</p>
+<div class="countdown-wrap"><div class="countdown-ring" id="countdown-ring" role="timer" aria-label="Обратный отсчёт до 18:00 по времени Таиланда"><div class="countdown-core"><span class="countdown-label">До открытия</span><span id="unlock-countdown" class="countdown">--:--:--</span><span class="countdown-zone">Время Таиланда</span></div></div></div>
+<div class="unlock-center"><button class="primary" id="unlock-photo" type="button">Откроется в 18:00</button></div>
+</section>
+
+<section class="screen" id="photo" hidden aria-labelledby="title-photo">
+<p class="eyebrow">05 / Ориентир</p>
+<h1 id="title-photo" tabindex="-1">Жду здесь</h1>
+<p class="sub" id="meeting-label">FLYO Rooftop Beach Club · 8 Sawatdirak Rd</p>
+<div class="photo-frame">
+<img class="meeting-photo" id="meeting-photo" alt="Ночной пляж и набережная Нячанга" width="1280" height="960" loading="lazy" decoding="async">
+</div>
+<button class="primary" type="button" data-next="final">Дальше →</button>
+</section>
+
+<section class="screen" id="q3" hidden aria-labelledby="title3">
+<p class="eyebrow">03 / Время</p>
+<h1 id="title3" tabindex="-1">Я жду тебя в…</h1>
+<div class="choices">
+<button class="choice good" type="button" data-next="wait">18:00</button>
+<button class="choice bad" type="button">00:00</button>
+<button class="choice bad" type="button">19:30</button>
+<button class="choice bad" type="button">14:00</button>
+<button class="choice bad" type="button">17:00</button>
+</div>
+</section>
+
+<section class="screen" id="final" hidden aria-labelledby="title-final">
+<div class="final"><div class="symbol" aria-hidden="true">✧</div><p class="eyebrow">Договорились</p><h1 id="title-final" tabindex="-1">До встречи 😉</h1><p>Продолжение откроется в 18:00.</p></div>
+</section>
+
+<p id="announcer" role="status" aria-live="polite"></p>
+<noscript><p>Для карты и игры нужно включить JavaScript в браузере.</p></noscript>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script id="land-points" type="application/json">[[7.9000,98.2975],[7.8988,98.3000],[7.8960,98.2985],[7.8945,98.2978],[7.8955,98.3000]]</script>
+<script>
+(function () {
+  'use strict';
+  var screens = document.querySelectorAll('.screen');
+  var buttons = document.querySelectorAll('.choice.bad');
+  var announcer = document.getElementById('announcer');
+  var current = 'q1';
+  var map;
+  var userLocation;
+  var userAccuracy;
+  // FLYO Rooftop Beach Club, Patong.
+  var meetingPoint = [7.89730,98.29674];
+  // Four decoy pins on nearby city blocks, scattered around the restaurant.
+  var coast = [[7.9000,98.2975],[7.8988,98.3000],[7.8960,98.2985],[7.8945,98.2978],[7.8955,98.3000]];  var markers = [];
+  var landPoints = JSON.parse(document.getElementById('land-points').textContent);
+
+  function showScreenFromHash() {
+    // Steps are advanced by a correct answer, never by typing an arbitrary URL hash.
+    screens.forEach(function (screen) { screen.hidden = screen.id !== current; });
+    var step = current === 'q1' ? 0 : (current === 'q2' ? 1 : 2);
+    document.querySelectorAll('.steps span').forEach(function (bar, index) {
+      bar.classList.toggle('active', index <= step);
+    });
+    announcer.textContent = '';
+    window.scrollTo(0,0);
+    if (current !== 'q1') document.querySelector('#' + current + ' h1').focus({preventScroll:true});
+    if (current === 'wait') updateUnlock();
+  }
+
+  function randomBetween(min,max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function evade(button) {
+    var before = button.getBoundingClientRect();
+    var viewport = window.visualViewport;
+    var leftEdge = (viewport ? viewport.offsetLeft : 0) + 12;
+    var topEdge = (viewport ? viewport.offsetTop : 0) + 12;
+    var viewWidth = viewport ? viewport.width : window.innerWidth;
+    var viewHeight = viewport ? viewport.height : window.innerHeight;
+    var rightEdge = leftEdge + viewWidth - before.width - 24;
+    var bottomEdge = topEdge + viewHeight - before.height - 28;
+    var minimumJump = Math.min(viewWidth,viewHeight) * 0.48;
+    var others = Array.from(button.parentElement.querySelectorAll('.choice'))
+      .filter(function (other) {return other !== button;})
+      .map(function (other) {return other.getBoundingClientRect();});
+    var history = button.recentTargets || [];
+    var candidates = [];
+    var distant = [];
+    // Sample the whole visible screen, not a row or a small card.
+    for (var x = leftEdge; x <= rightEdge; x += 16) {
+      for (var y = topEdge; y <= bottomEdge; y += 18) {
+        var clear = others.every(function (rect) {
+          return x + before.width + 8 < rect.left || x > rect.right + 8 ||
+            y + before.height + 8 < rect.top || y > rect.bottom + 8;
+        });
+        if (!clear) continue;
+        var distance = Math.hypot(x-before.left,y-before.top);
+        var point = {x:x,y:y,distance:distance};
+        distant.push(point);
+        if (distance >= minimumJump && history.every(function (old) {
+          return Math.hypot(x-old.x,y-old.y) >= 60;
+        })) candidates.push(point);
+      }
+    }
+    if (!candidates.length) {
+      distant.sort(function (a,b) {return b.distance-a.distance;});
+      candidates = distant.slice(0,Math.max(1,Math.ceil(distant.length/5)));
+    }
+    if (!candidates.length) return;
+    var target = candidates[randomBetween(0,candidates.length-1)];
+    button.style.position = 'fixed';
+    button.style.width = before.width + 'px';
+    button.style.left = target.x + 'px';
+    button.style.top = target.y + 'px';
+    button.recentTargets = history.concat([{x:before.left,y:before.top},target]).slice(-8);
+    announcer.textContent = 'Не поймала 😏';
+  }
+
+  buttons.forEach(function (button) {
+    button.addEventListener('pointerdown',function (event) {
+      if (!event.isPrimary || event.button !== 0) return;
+      event.preventDefault();
+      evade(button);
+    });
+    button.addEventListener('click',function (event) {
+      event.preventDefault();
+      if (event.detail === 0) evade(button);
+    });
+  });
+
+  // Unlock at 18:00 in Vietnam (UTC+7), independently of device timezone.
+  var photoURL = './assets/meeting-photo.jpg?v=f89743c';
+  var unlockButton = document.getElementById('unlock-photo');
+  var unlockStatus = document.getElementById('unlock-status');
+  var photoImage = document.getElementById('meeting-photo');
+  // Vietnam is UTC+07:00 year-round. Use epoch milliseconds so seconds tick precisely.
+  function vietnamDayMilliseconds() {
+    var now = Date.now() + 7*60*60*1000;
+    return ((now % 86400000) + 86400000) % 86400000;
+  }
+  function updateUnlock() {
+    var remaining = Math.max(0,18*60*60*1000 - vietnamDayMilliseconds());
+    var unlocked = remaining === 0;
+    var seconds = Math.ceil(remaining / 1000);
+    var hours = Math.floor(seconds/3600);
+    var minutes = Math.floor(seconds%3600/60);
+    var secs = seconds%60;
+    function two(n) { return String(n).padStart(2,'0'); }
+    document.getElementById('unlock-countdown').textContent = unlocked
+      ? '00:00:00' : two(hours)+':'+two(minutes)+':'+two(secs);
+    var ring = document.getElementById('countdown-ring');
+    ring.style.setProperty('--progress', Math.min(100,remaining/(18*3600000)*100).toFixed(3)+'%');
+    ring.style.setProperty('--ring-color', unlocked ? '#81ae94' : remaining <= 3600000 ? '#d16b64' : remaining <= 10800000 ? '#d6a04c' : '#81ae94');
+    unlockButton.dataset.unlocked = unlocked ? 'true' : 'false';
+    unlockButton.textContent = unlocked ? 'Далее →' : 'Откроется в 18:00';
+    if (unlocked && !photoImage.getAttribute('src')) photoImage.src = photoURL;
+  }
+  unlockButton.addEventListener('click',function () {
+    updateUnlock();
+    if (unlockButton.dataset.unlocked !== 'true') {
+      unlockButton.classList.remove('unlock-tapped');
+      void unlockButton.offsetWidth;
+      unlockButton.classList.add('unlock-tapped');
+      return;
+    }
+    current = 'photo';
+    showScreenFromHash();
+  });
+  window.setInterval(function () { if (current === 'wait') updateUnlock(); },1000);
+  document.addEventListener('visibilitychange',function () {
+    if (!document.hidden && current === 'wait') updateUnlock();
+  });
+    document.querySelectorAll('[data-next]').forEach(function (button) {
+    button.addEventListener('click',function () {
+      current = button.dataset.next;
+      showScreenFromHash();
+    });
+  });
+
+  if (typeof L === 'undefined') {
+    document.getElementById('map-error').hidden = false;
+    return;
+  }
+  map = L.map('map',{scrollWheelZoom:false,doubleClickZoom:false,minZoom:13,maxZoom:17}).setView([7.89730,98.2980],15);
+  var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+  var locateButton = document.getElementById('locate-me');
+  var locationStatus = document.getElementById('location-status');
+  locateButton.addEventListener('click',function () {
+    locationStatus.hidden = false;
+    if (!navigator.geolocation) {
+      locationStatus.textContent = 'Браузер не поддерживает геолокацию.';
+      return;
+    }
+    locateButton.disabled = true;
+    locateButton.textContent = 'Определяем…';
+    locationStatus.textContent = '';
+    map.locate({setView:false,enableHighAccuracy:true,timeout:12000,maximumAge:30000});
+  });
+  map.on('locationfound',function (event) {
+    locateButton.disabled = false;
+    locateButton.textContent = '⌖ Моя локация';
+    locationStatus.textContent = 'Ты на карте';
+    locationStatus.hidden = false;
+    if (!userLocation) {
+      userAccuracy = L.circle(event.latlng,{
+        radius:event.accuracy,color:'#4285f4',weight:1,opacity:.25,
+        fillColor:'#4285f4',fillOpacity:.08,interactive:false,className:'user-accuracy'
+      }).addTo(map);
+      userLocation = L.circleMarker(event.latlng,{
+        radius:7,color:'#ffffff',weight:2,fillColor:'#4285f4',
+        fillOpacity:1,interactive:false,className:'user-location'
+      }).addTo(map);
+    } else {
+      userAccuracy.setLatLng(event.latlng).setRadius(event.accuracy);
+      userLocation.setLatLng(event.latlng);
+    }
+    map.panTo(event.latlng,{animate:false});
+  });
+  map.on('locationerror',function (event) {
+    locateButton.disabled = false;
+    locateButton.textContent = '⌖ Моя локация';
+    locationStatus.hidden = false;
+    locationStatus.textContent = event.code === 1
+      ? 'Разреши доступ к локации в настройках браузера.'
+      : 'Не удалось определить локацию. Попробуй ещё.';
+  });
+  tiles.on('tileerror',function () { document.getElementById('map-error').hidden = false; });
+  tiles.on('tileload',function () { document.getElementById('map-error').hidden = true; });
+  // Five unique markers: one restaurant and four decoys including promenade.
+  [0,1,2,3,4].forEach(function (pointIndex,index) {
+    var correct = index === 2;
+    var icon = L.divIcon({
+      className:'pin-icon',
+      html:'<span class="pin-button" aria-hidden="true"></span>',
+      iconSize:[34,38],iconAnchor:[17,38],popupAnchor:[0,-34]
+    });
+    var marker = L.marker(correct ? meetingPoint : coast[pointIndex],{icon:icon,keyboard:true,title:"Отметка " + (index+1),riseOnHover:true}).addTo(map);
+    marker.coastIndex = pointIndex;
+    marker.on("add",function () { var el=marker.getElement(); if(el) el.setAttribute("aria-label","Отметка "+(index+1)); });
+    marker.correct = correct;
+    markers.push(marker);
+    if (correct) {
+      var popup = document.createElement('div');
+      var title = document.createElement('strong');
+      title.textContent = 'FLYO Rooftop Beach Club — 8 Sawatdirak Rd';
+      var message = document.createElement('p');
+      message.textContent = 'Вход через Black Out Patong, на лифте на крышу.';
+      var next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'primary';
+      next.textContent = 'Дальше →';
+      next.addEventListener('click',function () {
+        map.closePopup();
+        current = 'q2';
+        showScreenFromHash();
+      });
+      var address = document.createElement('textarea');
+      address.readOnly = true;
+      address.rows = 4;
+      address.value = "FLYO Rooftop Beach Club, 8 Sawatdirak Rd, Beyond Patong Hotel, Building 7, Patong, Kathu, Phuket 83150, Thailand";
+      address.setAttribute('aria-label','Адрес заведения');
+      address.style.cssText = 'display:block;width:100%;box-sizing:border-box;font:inherit;margin:8px 0;resize:none;';
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'primary';
+      copy.textContent = 'Скопировать адрес';
+      copy.style.marginBottom = '8px';
+      copy.addEventListener('click', async function () {
+        try {
+          if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+          await navigator.clipboard.writeText(address.value);
+          copy.textContent = 'Адрес скопирован ✓';
+        } catch (error) {
+          address.focus();
+          address.select();
+          address.setSelectionRange(0,address.value.length);
+          copy.textContent = 'Скопируй выделенный адрес';
+        }
+      });
+      popup.append(title,message,address,copy,next);
+      marker.bindPopup(popup);
+    } else {
+      marker.on('click',function () {
+        var previous = map.latLngToContainerPoint(marker.getLatLng());
+        var size = map.getSize();
+        var minimumJump = Math.min(size.x,size.y)*0.28;
+        var available = [];
+        // Pick a real mapped street point visible on screen, avoiding all other pins.
+        landPoints.forEach(function (coordinates) {
+          var location = L.latLng(coordinates);
+          var point = map.latLngToContainerPoint(location);
+          if (point.x < 48 || point.x > size.x-48 || point.y < 65 || point.y > size.y-48) return;
+          if (point.x < 85 && point.y < 130) return;
+          if (point.distanceTo(previous) < minimumJump) return;
+          if (!markers.every(function (other) {
+            return other === marker || point.distanceTo(map.latLngToContainerPoint(other.getLatLng())) > 85;
+          })) return;
+          available.push(location);
+        });
+        // Always move if the street data has no eligible point.
+        if (!available.length) {
+          var directions = [[.0018,.0015],[-.0018,-.0015],[.0018,-.0015],[-.0018,.0015]];
+          directions.forEach(function (delta) {
+            var location = L.latLng(marker.getLatLng().lat+delta[0],marker.getLatLng().lng+delta[1]);
+            var point = map.latLngToContainerPoint(location);
+            if (point.x > 40 && point.x < size.x-40 && point.y > 60 && point.y < size.y-40 &&
+                markers.every(function(other){return other===marker || point.distanceTo(map.latLngToContainerPoint(other.getLatLng()))>75;})) available.push(location);
+          });
+        }
+        if (!available.length) { announcer.textContent = 'Передвинь карту немного ближе к центру.'; return; }
+        marker.setLatLng(available[randomBetween(0,available.length-1)]);
+        announcer.textContent = 'Эта точка не сдаётся 😏';
+      });
+    }
+  });
+  window.addEventListener('resize',function () {
+    buttons.forEach(function (button) {
+      if (button.style.position !== 'fixed') return;
+      var rect = button.getBoundingClientRect();
+      button.style.left = Math.max(12,Math.min(rect.left,window.innerWidth-rect.width-12)) + 'px';
+      button.style.top = Math.max(12,Math.min(rect.top,window.innerHeight-rect.height-12)) + 'px';
+    });
+    map.invalidateSize();
+  });
+  showScreenFromHash();
+}());
+</script>
+</body>
+</html>
